@@ -1,7 +1,14 @@
 import { defineStore } from 'pinia'
-import { getSession, signIn, supabase } from '@/utils/supabase.js'
-import type { Session, User } from '@supabase/supabase-js'
+import { getSession, signIn } from '@/utils/supabase.js'
+import type { Session } from '@supabase/supabase-js'
 
+
+export type AppUser = {
+  id: string
+  name: string | null
+  email: string
+  picture: string | null
+}
 
 export interface AuthState {
   isLoggedIn: boolean
@@ -10,7 +17,7 @@ export interface AuthState {
 }
 
 export type AuthGetters = {
-  user: (state: AuthState) => User | null
+  user: (state: AuthState) => AppUser | null
 } // & Record<string, any>
 
 export type AuthActions = {
@@ -28,7 +35,15 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
   }),
   getters: {
     user(state) {
-      return state.session?.user ?? null;
+      const usr = state.session?.user;
+      if (!usr) return null;
+
+      return {
+        id: usr?.id,
+        name: usr?.user_metadata?.name ?? usr?.user_metadata?.full_name ?? 'unknown',
+        email: usr?.email ?? 'unkown@unknown',
+        picture: usr?.user_metadata?.avatar_url ?? null
+      }
     }
   },
   actions: {
