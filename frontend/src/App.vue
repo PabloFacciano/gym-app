@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-neutral-50 min-h-screen flex flex-col">
+  <div class="bg-neutral-800 text-neutral-100 min-h-screen flex flex-col">
     <RouterView class="grow"></RouterView>
   </div>
 </template>
@@ -36,7 +36,11 @@ export default defineComponent({
 
 @theme {
   /* Define the palette scale */
-  --color-app-50: #007acc;
+  --color-app-darker: #004b7e;
+  --color-app-dark: #0063a5;
+  --color-app: #007acc;
+  --color-app-light: #0091f3;
+  --color-app-lighter: #1ba4ff;
 }
 
 /* Standard resets if not already handled by your Tailwind config */
