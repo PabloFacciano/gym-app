@@ -36,7 +36,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   // Fetch the current session from Supabase
   const auth = AuthStore()
   await auth.getSession()
@@ -54,6 +54,7 @@ router.beforeEach(async (to, from, next) => {
   // Get the title from route meta, or use a default title
   const DEFAULT_TITLE = 'GymApp';
   document.title = to.meta.title ? `${to.meta.title} — ${DEFAULT_TITLE}` : DEFAULT_TITLE;
+
 })
 
 export default router
