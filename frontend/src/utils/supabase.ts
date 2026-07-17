@@ -35,7 +35,7 @@ export async function signIn(){
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: import.meta.env.VITE_APP_DOMAIN + '#/app'
+      redirectTo: window.location.origin + '#/app' // (Protocol + Domain + Port) + #/app
     }
   })
   if (error) throw error;

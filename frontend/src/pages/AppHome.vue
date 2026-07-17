@@ -1,6 +1,8 @@
 <template>
+  <!-- AppHome -->
   <div>
     <AppNavbar />
+    <div>Home</div>
   </div>
 </template>
 
