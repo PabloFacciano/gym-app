@@ -18,6 +18,11 @@ supabase.auth.onAuthStateChange((event, session) => {
     window.localStorage.setItem('oauth_provider_refresh_token', session.provider_refresh_token)
   }
 
+  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+    // Clear the #access_token and other hash parameters from the URL
+    router.replace({ path: window.location.pathname })
+  }
+
   if (event === 'SIGNED_OUT') {
     window.localStorage.removeItem('oauth_provider_token')
     window.localStorage.removeItem('oauth_provider_refresh_token')
