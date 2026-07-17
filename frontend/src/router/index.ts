@@ -53,7 +53,7 @@ router.beforeEach(async (to, from) => {
 
   // Get the title from route meta, or use a default title
   const DEFAULT_TITLE = 'GymApp';
-  document.title = to.meta.title ? `${to.meta.title} — ${DEFAULT_TITLE}` : DEFAULT_TITLE;
+  document.title = to.meta.title ? `${to.meta.title} | ${DEFAULT_TITLE}` : DEFAULT_TITLE;
 
 })
 
