@@ -1,6 +1,6 @@
 <template>
   <!-- AppNavbar -->
-  <div class="flex items-center space-x-4 bg-sky-600 text-start text-xl text-white">
+  <div class="flex items-center space-x-3 bg-sky-600 text-start text-xl text-white">
     <!-- Sidebar -->
     <Transition name="slide-left">
       <div
@@ -8,7 +8,7 @@
         @click="showSidebar = !showSidebar"
         class="fixed top-0 bottom-0 left-0 flex w-9/10 cursor-pointer flex-col bg-sky-600 shadow-sm sm:w-auto sm:min-w-60"
       >
-        <div class="border-app-darker flex items-center space-x-3 border-b p-4">
+        <div class="border-app flex items-center space-x-3 border-b p-4">
           <img
             class="h-6 w-6"
             src="https://img.icons8.com/ffffff/ios-filled/50/back--v1.png"
@@ -18,7 +18,7 @@
         </div>
 
         <RouterLink
-          class="border-app-darker border-b p-4"
+          class="border-app border-b p-4"
           v-for="link in links"
           :key="link.to"
           :to="link.to"
@@ -27,14 +27,14 @@
       </div>
     </Transition>
     <!-- Navbar -->
-    <button @click="showSidebar = !showSidebar" class="cursor-pointer p-4">
+    <button @click="showSidebar = !showSidebar" class="cursor-pointer p-4 flex items-center space-x-3">
       <img
         class="h-6 w-6"
         src="https://img.icons8.com/ffffff/ios-filled/50/menu--v1.png"
         alt="menu--v1"
       />
+      <div to="/app" class="font-medium">GymApp</div>
     </button>
-    <RouterLink to="/app" class="font-medium">GymApp</RouterLink>
   </div>
 </template>
 

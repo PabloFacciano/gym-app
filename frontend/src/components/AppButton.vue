@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="rounded focus:outline-none"
+    class="rounded focus:outline-none select-none"
     :class="{
       'cursor-pointer': !disabled,
       'cursor-not-allowed': disabled,

@@ -1,6 +1,7 @@
 <template>
   <div>
     <AppNavbar />
+    Exercises
   </div>
 </template>
 
