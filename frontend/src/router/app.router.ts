@@ -1,4 +1,5 @@
 import AppError404 from '@/pages/AppError404.vue'
+import AppLandingPage from '@/pages/AppLandingPage.vue'
 
 export const appRoutes = {
   path: '/app',
@@ -44,7 +45,7 @@ export const appRoutes = {
     },
     {
       name: 'app',
-      component: AppError404,
+      component: AppLandingPage,
       path: '',
       meta: {
         title: 'Inicio',

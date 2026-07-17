@@ -8,7 +8,7 @@ import { defineComponent } from 'vue'
 interface State {}
 
 export default defineComponent({
-  name: 'AppHomePage',
+  name: 'AppLandingPage',
   props: {},
   data(): State {
     return {}
