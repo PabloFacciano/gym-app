@@ -55,7 +55,6 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
       this.sessionPromise = (async () => {
         try {
           this.session = await getSession();
-          console.log("getSession", this.session);
         } catch (error) {
           this.session = null; 
           console.error("getSession failed", error);
@@ -71,7 +70,6 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
     },
     async signIn() {
       await signIn();
-      console.log("signIn")
     },
   },
 })
