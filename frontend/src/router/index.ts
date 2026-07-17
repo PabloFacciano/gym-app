@@ -43,20 +43,17 @@ router.beforeEach(async (to, from, next) => {
 
   // Route requires auth, but user is not logged in
   if (to.matched.some(record => record.meta.requiresAuth) && !auth.isLoggedIn) {
-    return next({ name: 'login' })
+    return { name: 'login' }
   }
 
   // Route is for guests (like login), but user is already logged in
   if (to.matched.some(record => record.meta.redirectIfAuth) && auth.isLoggedIn) {
-    return next({ name: 'dashboard' })
+    return { name: 'app' }
   }
 
   // Get the title from route meta, or use a default title
   const DEFAULT_TITLE = 'GymApp';
   document.title = to.meta.title ? `${to.meta.title} — ${DEFAULT_TITLE}` : DEFAULT_TITLE;
-
-  // Proceed normally
-  next()
 })
 
 export default router
