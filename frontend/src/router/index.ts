@@ -3,6 +3,7 @@ import { appRoutes } from '@/router/app.router'
 import AppLandingPage from '@/pages/AppLandingPage.vue'
 import AppError404 from '@/pages/AppError404.vue'
 import { AuthStore } from '@/stores/auth'
+import AppLogin from '@/pages/AppLogin.vue'
 
 
 const router = createRouter({
@@ -11,7 +12,7 @@ const router = createRouter({
     {
       name: 'login',
       path: '/login',
-      component: AppLandingPage,
+      component: AppLogin,
       meta: { 
         redirectIfAuth: true,
         title: 'Ingresar'

@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <!-- AppNavbar -->
+  <div class="bg-sky-600 text-white p-4 text-xl text-start">
     GymApp
   </div>
 </template>
@@ -10,7 +11,7 @@ import { defineComponent } from 'vue'
 interface State {}
 
 export default defineComponent({
-  name: 'AppLandingPage',
+  name: '???',
   props: {},
   data(): State {
     return {}
@@ -20,7 +21,7 @@ export default defineComponent({
   computed: {},
   methods: {},
   mounted() {
-    this.$router.push("/login")
+    //
   },
 })
 </script>

@@ -6,6 +6,7 @@ import type { Session, User } from '@supabase/supabase-js'
 export interface AuthState {
   isLoggedIn: boolean
   session: Session | null
+  sessionPromise: Promise<Session | null> | null
 }
 
 export type AuthGetters = {
@@ -22,7 +23,8 @@ export type AuthActions = {
 export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions>('Auth', {
   state: () => ({
     session: null,
-    isLoggedIn: false
+    isLoggedIn: false,
+    sessionPromise: null
   }),
   getters: {
     user(state) {
@@ -31,14 +33,26 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
   },
   actions: {
     async getSession() {
-      try {
-        this.session = await getSession();
-        console.log("getSession", this.session)
-      } catch (error) {
-        console.error("getSession failed", error)
+      if (this.sessionPromise) {
+        return this.sessionPromise;
       }
-      this.isLoggedIn = this.session != null;
-      return this.session;
+
+      this.sessionPromise = (async () => {
+        try {
+          this.session = await getSession();
+          console.log("getSession", this.session);
+        } catch (error) {
+          this.session = null; 
+          console.error("getSession failed", error);
+        } finally {
+          this.sessionPromise = null;
+        }
+        
+        this.isLoggedIn = this.session != null;
+        return this.session;
+      })();
+
+      return this.sessionPromise;
     },
     async signIn() {
       await signIn();

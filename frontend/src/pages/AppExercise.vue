@@ -1,26 +1,29 @@
 <template>
   <div>
-    GymApp
+    <AppNavbar />
   </div>
 </template>
 
 <script lang="ts">
+import AppNavbar from '@/custom/AppNavbar.vue';
 import { defineComponent } from 'vue'
 
 interface State {}
 
 export default defineComponent({
-  name: 'AppLandingPage',
+  name: 'AppExcercise',
   props: {},
   data(): State {
     return {}
   },
-  components: {},
+  components: {
+    AppNavbar
+  },
   watch: {},
   computed: {},
   methods: {},
   mounted() {
-    this.$router.push("/login")
+    //
   },
 })
 </script>

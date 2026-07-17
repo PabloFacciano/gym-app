@@ -1,5 +1,6 @@
-import AppError404 from '@/pages/AppError404.vue'
-import AppLandingPage from '@/pages/AppLandingPage.vue'
+import AppExercise from '@/pages/AppExercise.vue'
+import AppHome from '@/pages/AppHome.vue'
+import AppUser from '@/pages/AppUser.vue'
 
 export const appRoutes = {
   path: '/app',
@@ -13,12 +14,12 @@ export const appRoutes = {
         {
           name: 'user',
           path: '/:userId',
-          component: AppError404,
+          component: AppUser,
         },
         {
           name: 'users',
           path: '',
-          component: AppError404,
+          component: AppUser,
           meta: {
             title: 'Lista de Usuarios',
           },
@@ -31,12 +32,12 @@ export const appRoutes = {
         {
           name: 'exercise',
           path: '/:exerciseId',
-          component: AppError404,
+          component: AppExercise,
         },
         {
           name: 'exercises',
           path: '',
-          component: AppError404,
+          component: AppExercise,
           meta: {
             title: 'Lista de Ejercicios',
           },
@@ -45,7 +46,7 @@ export const appRoutes = {
     },
     {
       name: 'app',
-      component: AppLandingPage,
+      component: AppHome,
       path: '',
       meta: {
         title: 'Inicio',
