@@ -9,11 +9,11 @@ export const appRoutes = {
   },
   children: [
     {
-      path: '/users',
+      path: 'users',
       children: [
         {
           name: 'user',
-          path: '/:userId',
+          path: ':userId',
           component: AppUser,
         },
         {
@@ -27,11 +27,11 @@ export const appRoutes = {
       ],
     },
     {
-      path: '/exercises',
+      path: 'exercises',
       children: [
         {
           name: 'exercise',
-          path: '/:exerciseId',
+          path: ':exerciseId',
           component: AppExercise,
         },
         {
