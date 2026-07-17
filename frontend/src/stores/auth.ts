@@ -1,39 +1,48 @@
 import { defineStore } from 'pinia'
-import { supabase } from '@/utils/supabase.js'
-const APP_DOMAIN = 'http://localhost:5173/'
+import { getSession, signIn, supabase } from '@/utils/supabase.js'
+import type { Session, User } from '@supabase/supabase-js'
+
 
 export interface AuthState {
-  user: null,
-  session: null
+  isLoggedIn: boolean
+  session: Session | null
 }
 
 export type AuthGetters = {
-  loggedIn: (state: AuthState) => boolean
+  user: (state: AuthState) => User | null
 } // & Record<string, any>
 
 export type AuthActions = {
-  signIn(): Promise<void>
+  signIn(): Promise<void>,
+  getSession(): Promise<Session | null>
 }
+
+
 
 export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions>('Auth', {
   state: () => ({
-    user: null,
-    session: null
+    session: null,
+    isLoggedIn: false
   }),
   getters: {
-    loggedIn(state) {
-      return state.user != null;
-    },
+    user(state) {
+      return state.session?.user ?? null;
+    }
   },
   actions: {
+    async getSession() {
+      try {
+        this.session = await getSession();
+        console.log("getSession", this.session)
+      } catch (error) {
+        console.error("getSession failed", error)
+      }
+      this.isLoggedIn = this.session != null;
+      return this.session;
+    },
     async signIn() {
-      const result = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: APP_DOMAIN + '#app'
-        }
-      })
-      console.log("signIn", result)
+      await signIn();
+      console.log("signIn")
     },
   },
 })

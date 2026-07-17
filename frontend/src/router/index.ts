@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { supabase } from '@/utils/supabase'
 import { appRoutes } from '@/router/app.router'
-import AppHomePage from '@/pages/AppHomePage.vue'
+import AppLandingPage from '@/pages/AppLandingPage.vue'
 import AppError404 from '@/pages/AppError404.vue'
+import { AuthStore } from '@/stores/auth'
 
 
 const router = createRouter({
@@ -11,7 +11,7 @@ const router = createRouter({
     {
       name: 'login',
       path: '/login',
-      component: AppHomePage,
+      component: AppLandingPage,
       meta: { 
         redirectIfAuth: true,
         title: 'Ingresar'
@@ -21,7 +21,7 @@ const router = createRouter({
     {
       name: 'landing',
       path: '',
-      component: AppHomePage,
+      component: AppLandingPage,
     },
     { 
       path: '/:pathMatch(.*)*', 
@@ -37,16 +37,16 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   // Fetch the current session from Supabase
-  const { data: { session } } = await supabase.auth.getSession()
-  const isLoggedIn = !!session
+  const auth = AuthStore()
+  await auth.getSession()
 
   // Route requires auth, but user is not logged in
-  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {
+  if (to.matched.some(record => record.meta.requiresAuth) && !auth.isLoggedIn) {
     return next({ name: 'login' })
   }
 
   // Route is for guests (like login), but user is already logged in
-  if (to.matched.some(record => record.meta.redirectIfAuth) && isLoggedIn) {
+  if (to.matched.some(record => record.meta.redirectIfAuth) && auth.isLoggedIn) {
     return next({ name: 'dashboard' })
   }
 
