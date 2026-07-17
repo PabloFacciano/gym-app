@@ -31,19 +31,21 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 })
 
-export async function signIn(){
+export async function signIn() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + '#/app' // (Protocol + Domain + Port) + #/app
-    }
+      redirectTo: window.location.origin + '#/app', // (Protocol + Domain + Port) + #/app
+    },
   })
-  if (error) throw error;
+  if (error) throw error
 }
 
-export async function getSession(){
-  const { data: { session }, error } = await supabase.auth.getSession()
-  if (error) throw error;
-  return session;
+export async function getSession() {
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
+  if (error) throw error
+  return session
 }
-

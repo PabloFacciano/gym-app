@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import AppNavbar from '@/custom/AppNavbar.vue';
+import AppNavbar from '@/custom/AppNavbar.vue'
 import { defineComponent } from 'vue'
 
 interface State {}
@@ -19,7 +19,7 @@ export default defineComponent({
     return {}
   },
   components: {
-    AppNavbar
+    AppNavbar,
   },
   watch: {},
   computed: {},

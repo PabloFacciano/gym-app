@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-neutral-800 text-neutral-100 min-h-screen flex flex-col">
+  <div class="flex min-h-screen flex-col bg-neutral-800 text-neutral-100">
     <RouterView class="grow"></RouterView>
   </div>
 </template>

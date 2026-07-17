@@ -1,7 +1,5 @@
 <template>
-  <div>
-    GymApp
-  </div>
+  <div>GymApp</div>
 </template>
 
 <script lang="ts">
@@ -20,7 +18,7 @@ export default defineComponent({
   computed: {},
   methods: {},
   mounted() {
-    this.$router.push("/login")
+    this.$router.push('/login')
   },
 })
 </script>

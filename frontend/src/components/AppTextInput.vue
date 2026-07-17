@@ -2,10 +2,10 @@
   <div class="relative w-full font-sans">
     <!-- Main Input Area -->
     <div
-      class="group relative flex items-center bg-neutral-100 rounded-lg transition-all duration-200 border-2"
+      class="group relative flex items-center rounded-lg border-2 bg-neutral-100 transition-all duration-200"
       :class="[
-        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-neutral-200',
-        isFocused ? 'border-accentteams-600 ring-2 ring-accentteams-100' : 'border-transparent',
+        disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-neutral-200',
+        isFocused ? 'border-accentteams-600 ring-accentteams-100 ring-2' : 'border-transparent',
         !isInternallyValid ? 'border-red-500 bg-red-50' : '',
       ]"
     >
@@ -13,7 +13,7 @@
         v-if="type == 'textarea'"
         rows="6"
         :id="id"
-        class="w-full bg-transparent px-4 py-3 outline-none cursor-text break-all"
+        class="w-full cursor-text bg-transparent px-4 py-3 break-all outline-none"
         :class="{
           'font-semibold text-neutral-800': modelValue && isInternallyValid,
           'placeholder-neutral-400': !modelValue,
@@ -30,7 +30,7 @@
         v-else
         :id="id"
         :type="type"
-        class="w-full bg-transparent px-4 py-3 outline-none cursor-text"
+        class="w-full cursor-text bg-transparent px-4 py-3 outline-none"
         :class="{
           'font-semibold text-neutral-800': modelValue && isInternallyValid,
           'placeholder-neutral-400': !modelValue,
@@ -45,15 +45,15 @@
       />
 
       <!-- Validation Icons (Emoji) -->
-      <div v-if="hasBeenTouched" class="pr-4 flex items-center gap-2">
-        <span v-if="isInternallyValid" title="Valid" class="text-green-600 text-lg">✅</span>
-        <span v-else title="Invalid" class="text-red-600 text-lg">✖️</span>
+      <div v-if="hasBeenTouched" class="flex items-center gap-2 pr-4">
+        <span v-if="isInternallyValid" title="Valid" class="text-lg text-green-600">✅</span>
+        <span v-else title="Invalid" class="text-lg text-red-600">✖️</span>
       </div>
     </div>
 
     <!-- Error / Helper Message -->
     <div
-      class="flex justify-between items-center mt-2 px-1 min-h-[1.25rem]"
+      class="mt-2 flex min-h-[1.25rem] items-center justify-between px-1"
       v-if="(required && !modelValue) || (!isInternallyValid && errorMessage)"
     >
       <transition name="fade">

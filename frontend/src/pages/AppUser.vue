@@ -18,7 +18,13 @@
         </tr>
         <tr>
           <td>picture</td>
-          <td><img class="w-10 h-10 rounded-full" :src="user?.picture ?? 'https://placehold.co/40x40?text=??'" :alt="user?.name ?? 'user avatar'" /></td>
+          <td>
+            <img
+              class="h-10 w-10 rounded-full"
+              :src="user?.picture ?? 'https://placehold.co/40x40?text=??'"
+              :alt="user?.name ?? 'user avatar'"
+            />
+          </td>
         </tr>
       </table>
     </div>
@@ -26,9 +32,9 @@
 </template>
 
 <script lang="ts">
-import AppNavbar from '@/custom/AppNavbar.vue';
-import { AuthStore } from '@/stores/auth';
-import { mapState } from 'pinia';
+import AppNavbar from '@/custom/AppNavbar.vue'
+import { AuthStore } from '@/stores/auth'
+import { mapState } from 'pinia'
 import { defineComponent } from 'vue'
 
 interface State {}
@@ -40,11 +46,11 @@ export default defineComponent({
     return {}
   },
   components: {
-    AppNavbar
+    AppNavbar,
   },
   watch: {},
   computed: {
-    ...mapState(AuthStore, [ 'user' ])
+    ...mapState(AuthStore, ['user']),
   },
   methods: {},
   mounted() {

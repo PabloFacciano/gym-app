@@ -5,7 +5,6 @@ import AppError404 from '@/pages/AppError404.vue'
 import { AuthStore } from '@/stores/auth'
 import AppLogin from '@/pages/AppLogin.vue'
 
-
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -13,10 +12,10 @@ const router = createRouter({
       name: 'login',
       path: '/login',
       component: AppLogin,
-      meta: { 
+      meta: {
         redirectIfAuth: true,
-        title: 'Ingresar'
-      }
+        title: 'Ingresar',
+      },
     },
     appRoutes,
     {
@@ -24,37 +23,36 @@ const router = createRouter({
       path: '',
       component: AppLandingPage,
     },
-    { 
-      path: '/:pathMatch(.*)*', 
+    {
+      path: '/:pathMatch(.*)*',
       alias: '/404',
       name: 'notfound',
       component: AppError404,
-      meta: { 
-        title: 'Página no encontrada'
-      }
-    }
+      meta: {
+        title: 'Página no encontrada',
+      },
+    },
   ],
 })
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to, _from) => {
   // Fetch the current session from Supabase
   const auth = AuthStore()
   await auth.getSession()
 
   // Route requires auth, but user is not logged in
-  if (to.matched.some(record => record.meta.requiresAuth) && !auth.isLoggedIn) {
+  if (to.matched.some((record) => record.meta.requiresAuth) && !auth.isLoggedIn) {
     return { name: 'login' }
   }
 
   // Route is for guests (like login), but user is already logged in
-  if (to.matched.some(record => record.meta.redirectIfAuth) && auth.isLoggedIn) {
+  if (to.matched.some((record) => record.meta.redirectIfAuth) && auth.isLoggedIn) {
     return { name: 'app' }
   }
 
   // Get the title from route meta, or use a default title
-  const DEFAULT_TITLE = 'GymApp';
-  document.title = to.meta.title ? `${to.meta.title} | ${DEFAULT_TITLE}` : DEFAULT_TITLE;
-
+  const DEFAULT_TITLE = 'GymApp'
+  document.title = to.meta.title ? `${to.meta.title} | ${DEFAULT_TITLE}` : DEFAULT_TITLE
 })
 
 export default router
