@@ -9,6 +9,10 @@
         !disabled && type == 'primary',
       'border-app hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border hover:text-neutral-200':
         !disabled && type == 'secondary',
+      'bg-red-600 hover:bg-red-700 active:bg-red-800 text-neutral-200':
+        !disabled && type == 'danger',
+      'bg-red-600 text-red-300':
+        disabled && type == 'danger',
       'px-6 py-3 text-lg': size == 'lg',
       'text-md px-4 py-2': size == 'md',
       'px-2 py-1 text-sm': size == 'sm',
