@@ -2,21 +2,22 @@
   <div class="relative w-full font-sans">
     <!-- Main Input Area -->
     <div
-      class="group relative flex items-center rounded-lg border-2 bg-neutral-100 transition-all duration-200"
+      class="group relative flex items-center rounded-lg border-2 transition-all duration-200"
       :class="[
-        disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-neutral-200',
-        isFocused ? 'border-accentteams-600 ring-accentteams-100 ring-2' : 'border-transparent',
-        !isInternallyValid ? 'border-red-500 bg-red-50' : '',
+        isInternallyValid ? 'bg-neutral-800' : '',
+        disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-neutral-700',
+        !disabled && !isFocused ? 'border-neutral-600' : '',
+        isFocused ? 'border-app ring-app ring-2' : '',
+        !isInternallyValid ? 'border-red-500 bg-neutral-900' : '',
       ]"
     >
       <textarea
         v-if="type == 'textarea'"
         rows="6"
-        :id="id"
         class="w-full cursor-text bg-transparent px-4 py-3 break-all outline-none"
         :class="{
-          'font-semibold text-neutral-800': modelValue && isInternallyValid,
-          'placeholder-neutral-400': !modelValue,
+          'font-semibold text-neutral-200': modelValue && isInternallyValid,
+          'placeholder-neutral-600': !modelValue,
         }"
         :placeholder="placeholder"
         :disabled="disabled"
@@ -28,17 +29,18 @@
       </textarea>
       <input
         v-else
-        :id="id"
         :type="type"
         class="w-full cursor-text bg-transparent px-4 py-3 outline-none"
         :class="{
-          'font-semibold text-neutral-800': modelValue && isInternallyValid,
-          'placeholder-neutral-400': !modelValue,
+          'font-semibold text-neutral-200': modelValue && isInternallyValid,
+          'placeholder-neutral-600': !modelValue,
         }"
         :placeholder="placeholder"
         :disabled="disabled"
         :maxlength="maxlength"
         :value="modelValue"
+        :min="minimun"
+        :max="maximun"
         @input="handleInput"
         @focus="onFocus"
         @blur="onBlur"
@@ -53,17 +55,15 @@
 
     <!-- Error / Helper Message -->
     <div
-      class="mt-2 flex min-h-[1.25rem] items-center justify-between px-1"
+      class="my-2 flex min-h-[1.25rem] items-center justify-between px-1"
       v-if="(required && !modelValue) || (!isInternallyValid && errorMessage)"
     >
-      <transition name="fade">
-        <span v-if="required && !modelValue" class="text-sm text-red-600">
-          Este campo es obligatorio.
-        </span>
-        <span v-else-if="!isInternallyValid && errorMessage" class="text-sm text-red-600">
-          {{ errorMessage }}
-        </span>
-      </transition>
+      <span v-if="required && !modelValue" class="text-sm text-red-600">
+        Este campo es obligatorio.
+      </span>
+      <span v-else-if="!isInternallyValid && errorMessage" class="text-sm text-red-600">
+        {{ errorMessage }}
+      </span>
     </div>
   </div>
 </template>
@@ -75,10 +75,6 @@ export default defineComponent({
   name: 'AppTextInput',
   emits: ['update:modelValue', 'blur', 'focus'],
   props: {
-    id: {
-      type: String,
-      required: true,
-    },
     modelValue: {
       type: [String, Number] as PropType<string | number | null>,
       default: '',
@@ -110,6 +106,14 @@ export default defineComponent({
     isValid: {
       type: Boolean,
       default: true,
+    },
+    minimun: {
+      type: Number,
+      required: false,
+    },
+    maximun: {
+      type: Number,
+      required: false,
     },
   },
   data() {
@@ -145,14 +149,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
