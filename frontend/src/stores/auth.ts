@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getSession, signIn } from '@/utils/supabase.js'
+import { getSession, signIn, signOut } from '@/utils/supabase.js'
 import type { Session } from '@supabase/supabase-js'
 
 export type AppUser = {
@@ -13,6 +13,7 @@ export interface AuthState {
   isLoggedIn: boolean
   session: Session | null
   sessionPromise: Promise<Session | null> | null
+  signoutPromise: Promise<void> | null
 }
 
 export type AuthGetters = {
@@ -21,6 +22,7 @@ export type AuthGetters = {
 
 export type AuthActions = {
   signIn(): Promise<void>
+  signOut(): Promise<void>
   getSession(): Promise<Session | null>
 }
 
@@ -29,6 +31,7 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
     session: null,
     isLoggedIn: false,
     sessionPromise: null,
+    signoutPromise: null
   }),
   getters: {
     user(state) {
@@ -67,6 +70,23 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
     },
     async signIn() {
       await signIn()
+    },
+    async signOut() {
+      if (this.signoutPromise) {
+        return this.signoutPromise
+      }
+
+      this.signoutPromise = (async () => {
+        try {
+          await signOut()
+        } catch (error) {
+          console.error('signOut failed', error)
+        } finally {
+          this.signoutPromise = null
+        }
+      })()
+
+      return this.signoutPromise
     },
   },
 })

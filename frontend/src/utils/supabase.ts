@@ -10,6 +10,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 // provider tokens from the callback.
 // Listen for auth changes to force route updates if a session expires
 supabase.auth.onAuthStateChange((event, session) => {
+  console.log('authEvent', event)
+
   if (session && session.provider_token) {
     window.localStorage.setItem('oauth_provider_token', session.provider_token)
   }
@@ -25,7 +27,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     return
   }
 
-  if (event === 'SIGNED_IN' && router.currentRoute.value.name === 'login') {
+  if (event === 'INITIAL_SESSION') {
     router.push({ name: 'app' })
     return
   }
@@ -35,7 +37,7 @@ export async function signIn() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + '#/app', // (Protocol + Domain + Port) + #/app
+      redirectTo: window.location.origin
     },
   })
   if (error) throw error
@@ -48,4 +50,11 @@ export async function getSession() {
   } = await supabase.auth.getSession()
   if (error) throw error
   return session
+}
+
+export async function signOut() {
+  const {
+    error
+  } = await supabase.auth.signOut()
+  if (error) throw error
 }
