@@ -1,6 +1,6 @@
 <template>
   <!-- AppNavbar -->
-  <div class="flex items-center space-x-3 bg-sky-600 text-start text-xl text-white">
+  <div class="flex items-center space-x-3 bg-sky-600 text-start text-xl text-white select-none">
     <!-- Sidebar -->
     <Transition name="slide-left">
       <div
@@ -18,16 +18,18 @@
         </div>
 
         <RouterLink
-          class="border-app border-b p-4"
           v-for="link in links"
           :key="link.to"
           :to="link.to"
-          v-text="link.label"
-        ></RouterLink>
+          class="flex"
+        >
+          <div class="w-2" :class="{ 'bg-neutral-100': $router.currentRoute.value.path == link.to }"></div>
+          <div v-text="link.label" class="grow border-app border-b p-4"></div>
+        </RouterLink>
       </div>
     </Transition>
     <!-- Navbar -->
-    <button @click="showSidebar = !showSidebar" class="cursor-pointer p-4 flex items-center space-x-3">
+    <button @click="showSidebar = !showSidebar" class="cursor-pointer p-4 flex items-center space-x-4">
       <img
         class="h-6 w-6"
         src="https://img.icons8.com/ffffff/ios-filled/50/menu--v1.png"
@@ -49,7 +51,7 @@ interface State {
 }
 
 export default defineComponent({
-  name: '???',
+  name: 'AppNavbar',
   props: {},
   data(): State {
     return {
