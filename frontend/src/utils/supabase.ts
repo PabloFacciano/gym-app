@@ -27,7 +27,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     return
   }
 
-  if (event === 'INITIAL_SESSION') {
+  if (event === 'INITIAL_SESSION' && router.currentRoute.value.name == 'notfound') {
     router.push({ name: 'app' })
     return
   }

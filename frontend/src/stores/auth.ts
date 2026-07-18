@@ -1,13 +1,7 @@
 import { defineStore } from 'pinia'
 import { getSession, signIn, signOut } from '@/utils/supabase.js'
 import type { Session } from '@supabase/supabase-js'
-
-export type AppUser = {
-  id: string
-  name: string | null
-  email: string
-  picture: string | null
-}
+import type { AppUser } from './types'
 
 export interface AuthState {
   isLoggedIn: boolean

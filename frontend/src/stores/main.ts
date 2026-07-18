@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
-import type {} from './types.js'
+import type { AppExerciseDefinition } from './types.js'
 
 export interface MainState {
-  hello: string
+  backend: {
+    exercises: AppExerciseDefinition[]
+  }  
 }
 
 export type MainGetters = {
-  hel: (state: MainState) => string
+  hel: (state: MainState) => null
 } & Record<string, any>
 
 export type MainActions = {
@@ -15,11 +17,39 @@ export type MainActions = {
 
 export const mainStore = defineStore<'main', MainState, MainGetters, MainActions>('main', {
   state: () => ({
-    hello: 'world',
+    backend: {
+      exercises: [
+        {
+          id: '1234',
+          archived: false,
+          userId: '1234',
+          metrics: [
+            {
+              name: 'Repeticiones',
+              measure: '',
+              defaultValue: '10',
+            },
+            {
+              name: 'Peso',
+              measure: 'kg',
+              defaultValue: '15',
+            },
+            {
+              name: 'Distancia',
+              measure: 'km',
+              defaultValue: '5',
+            },
+          ],
+          name: 'Biceps',
+          createdDate: null,
+          modifiedDate: null,
+        }
+      ]
+    }    
   }),
   getters: {
-    hel(state) {
-      return state.hello
+    hel(_state) {
+      return null
     },
   },
   actions: {

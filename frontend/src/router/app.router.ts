@@ -1,4 +1,5 @@
 import AppExercise from '@/pages/AppExercise.vue'
+import AppExerciseRecord from '@/pages/AppExerciseRecord.vue'
 import AppHome from '@/pages/AppHome.vue'
 import AppUser from '@/pages/AppUser.vue'
 
@@ -15,6 +16,7 @@ export const appRoutes = {
           name: 'user',
           path: ':userId',
           component: AppUser,
+          props: true
         },
         {
           name: 'users',
@@ -32,7 +34,8 @@ export const appRoutes = {
         {
           name: 'exercise',
           path: ':exerciseId',
-          component: AppExercise,
+          component: AppExerciseRecord,
+          props: true
         },
         {
           name: 'exercises',
