@@ -1,21 +1,22 @@
 <template>
   <button
     type="button"
-    class="rounded focus:outline-none select-none"
+    class="rounded select-none focus:outline-none"
     :class="{
       'cursor-pointer': !disabled,
       'cursor-not-allowed': disabled,
       'bg-app hover:bg-app-dark active:bg-app-darker active:border-app-darker':
         !disabled && type == 'primary',
+      'bg-app-dark text-neutral-700': disabled && type == 'primary',
       'border-app hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border hover:text-neutral-200':
         !disabled && type == 'secondary',
-      'bg-red-600 hover:bg-red-700 active:bg-red-800 text-neutral-200':
+      'border-app-dark border text-neutral-400': disabled && type == 'secondary',
+      'bg-red-600 text-neutral-200 hover:bg-red-700 active:bg-red-800':
         !disabled && type == 'danger',
-      'bg-red-600 text-red-300':
-        disabled && type == 'danger',
+      'bg-red-600 text-red-300': disabled && type == 'danger',
       'px-6 py-3 text-lg': size == 'lg',
       'text-md px-4 py-2': size == 'md',
-      'px-2 py-1 text-sm': size == 'sm',
+      'px-3 py-1 text-sm': size == 'sm',
     }"
     @click="buttonClick"
   >

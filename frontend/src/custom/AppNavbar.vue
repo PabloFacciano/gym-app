@@ -17,19 +17,20 @@
           <div class="font-medium">GymApp</div>
         </div>
 
-        <RouterLink
-          v-for="link in links"
-          :key="link.to"
-          :to="link.to"
-          class="flex"
-        >
-          <div class="w-2" :class="{ 'bg-neutral-100': $router.currentRoute.value.path == link.to }"></div>
-          <div v-text="link.label" class="grow border-app border-b p-4"></div>
+        <RouterLink v-for="link in links" :key="link.to" :to="link.to" class="flex">
+          <div
+            class="w-2"
+            :class="{ 'bg-neutral-100': $router.currentRoute.value.path == link.to }"
+          ></div>
+          <div v-text="link.label" class="border-app grow border-b p-4"></div>
         </RouterLink>
       </div>
     </Transition>
     <!-- Navbar -->
-    <button @click="showSidebar = !showSidebar" class="cursor-pointer p-4 flex items-center space-x-4">
+    <button
+      @click="showSidebar = !showSidebar"
+      class="flex cursor-pointer items-center space-x-4 p-4"
+    >
       <img
         class="h-6 w-6"
         src="https://img.icons8.com/ffffff/ios-filled/50/menu--v1.png"

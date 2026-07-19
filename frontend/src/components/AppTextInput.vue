@@ -2,7 +2,7 @@
   <div class="relative w-full font-sans">
     <!-- Main Input Area -->
     <div
-      class="group relative flex items-center rounded-lg border-2 transition-all duration-200"
+      class="group relative flex items-center rounded-lg border-1 transition-all duration-200"
       :class="[
         isInternallyValid ? 'bg-neutral-800' : '',
         disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-neutral-700',
@@ -48,8 +48,8 @@
 
       <!-- Validation Icons (Emoji) -->
       <div v-if="hasBeenTouched" class="flex items-center gap-2 pr-4">
-        <span v-if="isInternallyValid" title="Valid" class="text-lg text-green-600">✅</span>
-        <span v-else title="Invalid" class="text-lg text-red-600">✖️</span>
+        <span v-if="isInternallyValid" title="Valid" class="text-lg text-green-600">&#10003;</span>
+        <span v-else title="Invalid" class="text-lg text-red-400">&#10005;</span>
       </div>
     </div>
 
@@ -58,11 +58,11 @@
       class="my-2 flex min-h-[1.25rem] items-center justify-between px-1"
       v-if="(required && !modelValue) || (!isInternallyValid && errorMessage)"
     >
-      <span v-if="required && !modelValue" class="text-sm text-red-600">
-        Este campo es obligatorio.
+      <span v-if="required && !modelValue" class="text-sm text-red-400">
+        &#9650; Este campo es obligatorio.
       </span>
-      <span v-else-if="!isInternallyValid && errorMessage" class="text-sm text-red-600">
-        {{ errorMessage }}
+      <span v-else-if="!isInternallyValid && errorMessage" class="text-sm text-red-400">
+        {{ '&#9650;' + errorMessage }}
       </span>
     </div>
   </div>
