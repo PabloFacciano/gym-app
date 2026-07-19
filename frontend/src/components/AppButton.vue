@@ -5,10 +5,10 @@
     :class="{
       'cursor-pointer': !disabled,
       'cursor-not-allowed': disabled,
-      'bg-app hover:bg-app-dark active:bg-app-darker active:border-app-darker':
+      'bg-app hover:bg-app-dark active:bg-app-darker active:border-app-darker text-neutral-200':
         !disabled && type == 'primary',
       'bg-app-dark text-neutral-700': disabled && type == 'primary',
-      'border-app hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border hover:text-neutral-200':
+      'border-app text-neutral-200 hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border':
         !disabled && type == 'secondary',
       'border-app-dark border text-neutral-400': disabled && type == 'secondary',
       'bg-red-600 text-neutral-200 hover:bg-red-700 active:bg-red-800':

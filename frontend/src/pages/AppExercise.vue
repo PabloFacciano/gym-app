@@ -18,6 +18,7 @@
           <div class="text-xl font-medium" v-text="exercise.name"></div>
           <!-- Table -->
           <div
+            v-if="hasMetrics(exercise)"
             class="[&::-webkit-scrollbar-track]:bg-scrollbar-track [&::-webkit-scrollbar-thumb]:bg-scrollbar-thumb overflow-x-auto rounded-lg border border-neutral-500 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-none"
           >
             <table class="min-w-full">
@@ -50,8 +51,6 @@
 import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
-import { mapState } from 'pinia'
-import { mainStore } from '@/stores/main'
 import { defineComponent } from 'vue'
 
 interface State {
@@ -69,8 +68,15 @@ export default defineComponent({
     AppNavbar,
     AppButton,
   },
-  computed: {},
+  computed: {
+    manager() {
+      return ExerciseManager.getInstance()
+    },
+  },
   methods: {
+    hasMetrics(row: AppExerciseDefinition) {
+      return this.manager.hasMetrics(row)
+    },
     newRecord() {
       this.$router.push({ name: 'exercise', params: { exerciseId: 'new' } })
     },
