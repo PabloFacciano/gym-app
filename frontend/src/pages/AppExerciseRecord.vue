@@ -172,9 +172,11 @@
                 ejercicio.
               </div>
             </div>
-            <div v-if="hasMetrics">
+            <div v-if="hasMetrics" class="space-y-4">
               <div class="font-medium">Periodo</div>
               <AppDropdown v-model="stats.period" :list="stats.list" :required="true" />
+              <AppChart :data="chartData" />
+              
             </div>
           </div>
         </div>
@@ -195,6 +197,7 @@
 </template>
 
 <script lang="ts">
+import AppChart from '@/components/AppChart.vue';
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
@@ -219,6 +222,13 @@ interface State {
     list: SelectOption[]
   }
   showDeleteModal: boolean
+  chartData: {
+    name: string,
+    values: {
+      value: number,
+      date: Date
+    }[]
+  }[]
 }
 
 export default defineComponent({
@@ -233,6 +243,28 @@ export default defineComponent({
       showDeleteModal: false,
       mode: 'view',
       tab: 'stats',
+      chartData: [
+        {
+          name: 'Series A (Green Allocation)',
+          values: [
+            { value: 1, date: new Date('2026-03-10T00:00:00-03:00') },
+            { value: 3, date: new Date('2026-03-12T08:30:00-03:00') },
+            { value: 3, date: new Date('2026-05-13T12:00:00-03:00') },
+            { value: 2, date: new Date('2026-03-15T08:30:00-03:00') },
+            { value: 3, date: new Date('2026-05-18T12:00:00-03:00') },
+            { value: 5, date: new Date('2026-07-20T23:59:59-03:00') }
+          ]
+        },
+        {
+          name: 'Series B (Blue Network)',
+          values: [
+            { value: 1, date: new Date('2026-03-10T00:00:00-03:00') },
+            { value: 5, date: new Date('2026-03-12T08:30:00-03:00') },
+            { value: 2, date: new Date('2026-05-03T12:00:00-03:00') },
+            { value: 4.5, date: new Date('2026-07-20T23:59:59-03:00') }
+          ]
+        }
+      ],
       stats: {
         period: 'last30days',
         list: [
@@ -257,6 +289,7 @@ export default defineComponent({
     AppDropdown,
     AppModal,
     AppLoader,
+    AppChart
   },
   watch: {
     exerciseId: {
