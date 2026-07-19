@@ -1,3 +1,5 @@
+import type { AppExerciseMetric } from '@/backend/Exercise'
+
 export interface DynamicKeyValue {
   [key: string]: string // Key-value pairs
 }
@@ -9,38 +11,12 @@ export type AppUser = {
   picture: string | null
 }
 
-export type AppExerciseMetric = {
-  name: string
-  defaultValue: string | null
-  measure: string | null
-}
-export type AppExerciseDefinition = {
+export interface AppExerciseInstance {
   id: string
   userId: string | null
   name: string | null
   archived: boolean | null
   metrics: AppExerciseMetric[] | null
-  createdDate: Date | null
-  modifiedDate: Date | null
-}
-export type AppExerciseInstance = {
-  id: string
-  userId: string | null
-  name: string | null
-  archived: boolean | null
-  metrics: AppExerciseMetric[] | null
-  createdDate: Date | null
-  modifiedDate: Date | null
-}
-
-
-
-export type DbExerciseDefinition = {
-  id: string | null
-  userId: string | null
-  name: string | null
-  archived: boolean | null
-  metrics: string | null
   createdDate: Date | null
   modifiedDate: Date | null
 }

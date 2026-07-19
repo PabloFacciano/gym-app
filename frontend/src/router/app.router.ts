@@ -16,7 +16,7 @@ export const appRoutes = {
           name: 'user',
           path: ':userId',
           component: AppUser,
-          props: true
+          props: true,
         },
         {
           name: 'users',
@@ -35,7 +35,7 @@ export const appRoutes = {
           name: 'exercise',
           path: ':exerciseId',
           component: AppExerciseRecord,
-          props: true
+          props: true,
         },
         {
           name: 'exercises',

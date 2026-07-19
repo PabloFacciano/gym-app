@@ -25,7 +25,7 @@ export const AuthStore = defineStore<'Auth', AuthState, AuthGetters, AuthActions
     session: null,
     isLoggedIn: false,
     sessionPromise: null,
-    signoutPromise: null
+    signoutPromise: null,
   }),
   getters: {
     user(state) {
