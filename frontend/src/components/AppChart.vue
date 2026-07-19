@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-[#121212] text-zinc-300 p-6 rounded-xl font-sans select-none">
+  <div class="w-full text-zinc-300 p-2 rounded-xl font-sans select-none">
     <!-- Chart Container -->
     <div class="relative flex h-64 w-full">
       
@@ -9,7 +9,7 @@
       </div>
 
       <!-- Main SVG Canvas Area -->
-      <div class="relative flex-1 bg-[#1a1a1a] overflow-visible">
+      <div class="relative flex-1 bg-neutral-900 overflow-visible p-4 rounded-lg">
         <svg class="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
           <!-- Render Series Lines -->
           <polyline
@@ -38,17 +38,26 @@
         {{ label }}
       </span>
     </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, type PropType } from 'vue';
+
+export interface ChartSerie {
+  name: string,
+  values: {
+    value: number,
+    date: Date
+  }[]
+}
 
 export default defineComponent({
   name: 'AppChart',
   props: {
     data: {
-      type: Array,
+      type: Object as PropType<ChartSerie[]>,
       required: true,
       default: () => []
     }
@@ -93,9 +102,9 @@ export default defineComponent({
       }
 
       // Format utilizing standard numeric short-hands (e.g. "10-03" / "20-07")
-      const formatter = new Intl.DateTimeFormat('en-US', {
+      const formatter = new Intl.DateTimeFormat('es-AR', {
         day: '2-digit',
-        month: '2-digit'
+        month: 'short'
       });
 
       // Swapping slash delimiter format with localized dashes matching your layout
@@ -133,7 +142,7 @@ export default defineComponent({
   methods: {
     generateTicks(seriesIndex) {
       if (!this.normalizedData[seriesIndex] || this.normalizedData[seriesIndex].values.length === 0) {
-        return [4, 3, 2, 1];
+        return [];
       }
       const vals = this.normalizedData[seriesIndex].values.map(v => v.value);
       const min = Math.min(...vals);
@@ -141,7 +150,7 @@ export default defineComponent({
       
       if (min === max) return [max + 1, max, max - 1, max - 2];
       
-      const step = (max - min) / 3;
+      const step = (max - min) / 4;
       return [
         Math.round(max),
         Math.round(max - step),
