@@ -8,7 +8,7 @@
       'bg-app hover:bg-app-dark active:bg-app-darker active:border-app-darker text-neutral-200':
         !disabled && type == 'primary',
       'bg-app-dark text-neutral-700': disabled && type == 'primary',
-      'border-app text-neutral-200 hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border':
+      'border-app hover:bg-app-dark hover:border-app-dark active:bg-app-darker active:border-app-darker border text-neutral-200':
         !disabled && type == 'secondary',
       'border-app-dark border text-neutral-400': disabled && type == 'secondary',
       'bg-red-600 text-neutral-200 hover:bg-red-700 active:bg-red-800':
