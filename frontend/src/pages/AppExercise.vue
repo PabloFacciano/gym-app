@@ -1,8 +1,9 @@
 <template>
   <div>
     <AppNavbar />
+    <AppLoader v-if="loading" />
     <!-- List -->
-    <div class="flex flex-col items-center p-3 sm:p-8">
+    <div class="flex flex-col items-center p-3 sm:p-8" v-if="!loading">
       <div class="flex w-full flex-col space-y-3 sm:w-140 sm:space-y-6">
         <div class="flex items-center justify-end">
           <AppButton size="md" :disabled="false" type="primary" @click="newRecord"
@@ -49,11 +50,13 @@
 
 <script lang="ts">
 import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
-import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
+import AppButton from '@/components/AppButton.vue'
+import AppLoader from '@/components/AppLoader.vue'
 import { defineComponent } from 'vue'
 
 interface State {
+  loading: boolean
   exercises: AppExerciseDefinition[]
 }
 
@@ -61,12 +64,14 @@ export default defineComponent({
   name: 'AppExcercise',
   data(): State {
     return {
+      loading: false,
       exercises: [],
     }
   },
   components: {
     AppNavbar,
     AppButton,
+    AppLoader
   },
   computed: {
     manager() {
@@ -81,13 +86,14 @@ export default defineComponent({
       this.$router.push({ name: 'exercise', params: { exerciseId: 'new' } })
     },
     async loadRecords() {
-      const manager = ExerciseManager.getInstance()
+      this.loading = true;
       try {
-        this.exercises = await manager.getRows()
+        this.exercises = await this.manager.getRows()
       } catch (error) {
         console.error(error)
         alert('Error in exercises sync')
       }
+      this.loading = false;
     },
   },
   mounted() {

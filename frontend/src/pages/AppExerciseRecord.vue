@@ -1,12 +1,14 @@
 <template>
   <div>
     <AppNavbar />
-    <div class="flex flex-col items-center justify-center space-y-4 p-8" v-if="loading">
-      <div
-        class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-t-transparent"
-      ></div>
-      <div>Espera un momento...</div>
+
+    <!-- Loader -->
+    <div class="flex flex-col items-center px-3 pt-6 sm:px-12 sm:pt-12" v-if="loading">
+      <div class="flex w-full flex-col space-y-4 sm:w-140 sm:space-y-6">
+        <AppLoader />
+      </div>
     </div>
+
     <!-- Record -->
     <div v-if="exercise && !loading && manager">
       <!-- Header -->
@@ -198,6 +200,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
 import AppDropdown from '@/components/AppDropdown.vue'
 import AppModal from '@/components/AppModal.vue'
+import AppLoader from '@/components/AppLoader.vue'
 import type { SelectOption } from '@/components/AppDropdown.vue'
 
 import { defineComponent } from 'vue'
@@ -253,6 +256,7 @@ export default defineComponent({
     AppTextInput,
     AppDropdown,
     AppModal,
+    AppLoader,
   },
   watch: {
     exerciseId: {
@@ -327,15 +331,16 @@ export default defineComponent({
     async save() {
       if (!this.exercise) return
       try {
-        const isNew = this.exerciseId == 'new'
-        await this.manager.save(this.exercise, isNew)
+        this.mode = 'view' // so updates seems instant
+
+        await this.manager.save(this.exercise)
 
         // after save
-        this.mode = 'view'
         if (this.exerciseId == 'new') {
           this.$router.push({ name: 'exercise', params: { exerciseId: this.exercise.id } })
         }
       } catch (error) {
+        this.mode = 'edit' // rollback mode to edit
         console.error(error)
         alert('Error while saving the record.')
       }
