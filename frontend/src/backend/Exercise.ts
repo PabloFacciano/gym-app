@@ -187,6 +187,7 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
       let { data: exercise_definition, error } = await supabase
         .from('exercise_definition')
         .select('*')
+        .eq('deleted', false)
       if (error) throw error
 
       // ETL
@@ -209,6 +210,7 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
 
     // get from supabase
     const { data, error } = await supabase.from('exercise_definition').select().eq('id', id)
+      .eq('deleted', false)
     if (error) throw error
 
     if (!data || data.length === 0) throw new Error('No row found')

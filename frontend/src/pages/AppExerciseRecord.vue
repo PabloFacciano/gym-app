@@ -5,7 +5,7 @@
       <div
         class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-t-transparent"
       ></div>
-      <div>Cargando...</div>
+      <div>Espera un momento...</div>
     </div>
     <!-- Record -->
     <div v-if="exercise && !loading && manager">
@@ -18,11 +18,12 @@
               >&lt; Ir a Ejercicios</RouterLink
             >
             <!-- Title -->
-            <div class="flex items-start justify-between space-x-3">
-              <div>
+            <div class="flex items-center justify-between space-x-3">
+              <div class="grow">
                 <div
                   v-if="mode == 'view'"
-                  class="line-clamp-3 text-xl font-medium break-all"
+                  @click="edit"
+                  class="line-clamp-3 grow cursor-pointer text-xl font-medium break-all"
                   v-text="exercise.name"
                 ></div>
                 <AppTextInput
@@ -38,7 +39,11 @@
                 <AppButton type="primary" size="sm" v-if="mode == 'view'" @click="edit"
                   >Editar</AppButton
                 >
-                <AppButton type="danger" size="sm" v-if="mode == 'view'" @click="deleteRow"
+                <AppButton
+                  type="danger"
+                  size="sm"
+                  v-if="mode == 'view'"
+                  @click="showDeleteModal = true"
                   >Eliminar</AppButton
                 >
                 <AppButton
@@ -173,6 +178,17 @@
         </div>
       </div>
     </div>
+    <!-- Delete Modal -->
+    <AppModal
+      v-model:isOpen="showDeleteModal"
+      :title="`Eliminar [${exercise?.name ?? '<sin nombre>'}] ?`"
+      primaryButtonText="Eliminar"
+      secondaryButtonText="Cancelar"
+      @primaryButtonClicked="deleteRow"
+      @secondaryButtonClicked="showDeleteModal = false"
+    >
+      Esta acción no se puede deshacer.
+    </AppModal>
   </div>
 </template>
 
@@ -181,6 +197,7 @@ import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
 import AppDropdown from '@/components/AppDropdown.vue'
+import AppModal from '@/components/AppModal.vue'
 import type { SelectOption } from '@/components/AppDropdown.vue'
 
 import { defineComponent } from 'vue'
@@ -192,12 +209,13 @@ import { AuthStore } from '@/stores/auth'
 interface State {
   exercise: AppExerciseDefinition | null
   loading: boolean
-  mode: 'view' | 'edit' | 'deleting'
+  mode: 'view' | 'edit'
   tab: 'stats' | 'history'
   stats: {
     period: string
     list: SelectOption[]
   }
+  showDeleteModal: boolean
 }
 
 export default defineComponent({
@@ -209,6 +227,7 @@ export default defineComponent({
     return {
       exercise: null,
       loading: false,
+      showDeleteModal: false,
       mode: 'view',
       tab: 'stats',
       stats: {
@@ -233,6 +252,7 @@ export default defineComponent({
     AppButton,
     AppTextInput,
     AppDropdown,
+    AppModal,
   },
   watch: {
     exerciseId: {
@@ -294,9 +314,12 @@ export default defineComponent({
     async deleteRow() {
       if (!this.exercise) return
       try {
+        this.showDeleteModal = false
+        this.loading = true
         await this.manager.delete(this.exercise)
         this.$router.push({ name: 'exercises' })
       } catch (error) {
+        this.loading = false
         console.error(error)
         alert('Error while deleting the record.')
       }
