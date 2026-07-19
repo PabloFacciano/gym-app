@@ -8,119 +8,166 @@
       <div>Cargando...</div>
     </div>
     <!-- Record -->
-    <div v-if="exercise && !loading" class="space-y-6 rounded bg-neutral-700 px-6 pt-6">
-      <div class="flex flex-col items-center px-3 pt-3 sm:px-8 sm:pt-8">
+    <div v-if="exercise && !loading && manager">
+      <!-- Header -->
+      <div v-if="exercise && !loading" class="space-y-6 rounded bg-neutral-700">
+        <div class="flex flex-col items-center px-3 pt-6 sm:px-12 sm:pt-12">
+          <div class="flex w-full flex-col space-y-4 sm:w-140 sm:space-y-6">
+            <!-- Return link -->
+            <RouterLink :to="{ name: 'exercises' }" class="text-app-lighter hover:underline"
+              >&lt; Ir a Ejercicios</RouterLink
+            >
+            <!-- Title -->
+            <div class="flex items-start justify-between space-x-3">
+              <div>
+                <div
+                  v-if="mode == 'view'"
+                  class="line-clamp-3 text-xl font-medium break-all"
+                  v-text="exercise.name"
+                ></div>
+                <AppTextInput
+                  v-if="mode == 'edit'"
+                  v-model="exercise.name"
+                  type="text"
+                  placeholder="Nombre"
+                  :maxlength="50"
+                  :required="true"
+                />
+              </div>
+              <div class="flex space-x-3">
+                <AppButton type="primary" size="sm" v-if="mode == 'view'" @click="edit"
+                  >Editar</AppButton
+                >
+                <AppButton type="danger" size="sm" v-if="mode == 'view'" @click="deleteRow"
+                  >Eliminar</AppButton
+                >
+                <AppButton
+                  type="primary"
+                  size="sm"
+                  v-if="mode == 'edit'"
+                  @click="save"
+                  :disabled="!canSave"
+                  :title="cantSaveReasons.join('\n')"
+                  >Guardar</AppButton
+                >
+                <AppButton type="secondary" size="sm" v-if="mode == 'edit'" @click="cancel"
+                  >Cancelar</AppButton
+                >
+              </div>
+            </div>
+            <!-- Table -->
+            <div v-if="hasMetrics" class="overflow-x-auto rounded-lg border border-neutral-500">
+              <table class="min-w-full">
+                <thead class="divide-y divide-neutral-500 bg-neutral-600" v-if="mode == 'edit'">
+                  <tr class="">
+                    <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Métrica</th>
+                    <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Valor</th>
+                    <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Medida</th>
+                    <th
+                      class="px-4 py-3 text-start text-sm whitespace-nowrap"
+                      v-if="mode == 'edit'"
+                    ></th>
+                  </tr>
+                </thead>
+                <tbody class="" :class="{ 'divide-y divide-neutral-500': mode == 'view' }">
+                  <tr v-for="(metric, index) in exercise.metrics">
+                    <td class="items-start text-sm font-medium whitespace-nowrap">
+                      <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.name"></div>
+                      <AppTextInput
+                        v-if="mode == 'edit'"
+                        v-model="metric.name"
+                        type="text"
+                        placeholder="Nombre"
+                        :maxlength="50"
+                        :required="true"
+                      />
+                    </td>
+                    <td class="items-start text-sm font-medium whitespace-nowrap">
+                      <div
+                        v-if="mode == 'view'"
+                        class="px-4 py-3"
+                        v-text="metric.defaultValue"
+                      ></div>
+                      <AppTextInput
+                        v-if="mode == 'edit'"
+                        v-model="metric.defaultValue"
+                        type="number"
+                        placeholder="Valor"
+                        :maxlength="50"
+                        :required="true"
+                        :minimun="0"
+                        :maximun="1000000000"
+                      />
+                    </td>
+                    <td class="items-start text-sm font-medium whitespace-nowrap">
+                      <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.measure"></div>
+                      <AppTextInput
+                        v-if="mode == 'edit'"
+                        v-model="metric.measure"
+                        type="text"
+                        placeholder="Medida"
+                        :maxlength="50"
+                        :required="false"
+                      />
+                    </td>
+                    <td
+                      class="items-start px-2 text-sm font-medium whitespace-nowrap"
+                      v-if="mode == 'edit'"
+                    >
+                      <AppButton
+                        size="sm"
+                        type="danger"
+                        @click="manager.deleteMetric(exercise, index)"
+                        >&times;</AppButton
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="flex justify-start pb-6" v-if="mode == 'edit'">
+              <AppButton
+                type="secondary"
+                size="sm"
+                @click="manager.addMetric(exercise)"
+                :disabled="hasEmptyMetric"
+                >Agregar Métrica</AppButton
+              >
+            </div>
+            <!-- Tabs -->
+            <div class="flex" v-if="mode == 'view'">
+              <div
+                class="border-app cursor-pointer px-6 py-3"
+                :class="{ 'border-b-4': tab == 'stats' }"
+                @click="tab = 'stats'"
+              >
+                Estadísticas
+              </div>
+              <div
+                class="border-app cursor-pointer px-6 py-3"
+                :class="{ 'border-b-4': tab == 'history' }"
+                @click="tab = 'history'"
+              >
+                Historial
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Content  -->
+      <div class="flex flex-col items-center px-3 py-6 sm:p-12" v-if="mode == 'view'">
         <div class="flex w-full flex-col space-y-4 sm:w-140 sm:space-y-6">
-          <!-- Return link -->
-          <RouterLink :to="{ name: 'exercises' }" class="text-app-lighter hover:underline"
-            >&lt; Ir a Ejercicios</RouterLink
-          >
-          <!-- Title -->
-          <div class="flex items-center justify-between">
-            <div>
-              <div v-if="mode == 'view'" class="text-xl font-medium" v-text="exercise.name"></div>
-              <AppTextInput
-                v-if="mode == 'edit'"
-                v-model="exercise.name"
-                type="text"
-                placeholder="Nombre"
-                :maxlength="50"
-                :required="true"
-              />
+          <!-- Stats -->
+          <div v-if="tab == 'stats'" class="space-y-4">
+            <div v-if="!hasMetrics">
+              <div class="text-center">
+                Para ver estadísticas, agrega una <span class="font-medium">Métrica</span> a este
+                ejercicio.
+              </div>
             </div>
-            <div class="flex space-x-3">
-              <AppButton type="primary" size="sm" v-if="mode == 'view'" @click="edit"
-                >Editar</AppButton
-              >
-              <AppButton type="danger" size="sm" v-if="mode == 'view'" @click="delete"
-                >Eliminar</AppButton
-              >
-              <AppButton type="primary" size="sm" v-if="mode == 'edit'" @click="save"
-                >Guardar</AppButton
-              >
-              <AppButton type="secondary" size="sm" v-if="mode == 'edit'" @click="cancel"
-                >Cancelar</AppButton
-              >
-            </div>
-          </div>
-          <!-- Table -->
-          <div
-            class="[&::-webkit-scrollbar-track]:bg-scrollbar-track [&::-webkit-scrollbar-thumb]:bg-scrollbar-thumb overflow-x-auto rounded-lg border border-neutral-500 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-none"
-          >
-            <table class="min-w-full">
-              <thead class="divide-y divide-neutral-500 bg-neutral-600" v-if="mode == 'edit'">
-                <tr class="">
-                  <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Métrica</th>
-                  <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Valor</th>
-                  <th class="px-4 py-3 text-start text-sm whitespace-nowrap">Medida</th>
-                  <th
-                    class="px-4 py-3 text-start text-sm whitespace-nowrap"
-                    v-if="mode == 'edit'"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody class="" :class="{ 'divide-y divide-neutral-500': mode == 'view' }">
-                <tr v-for="metric in exercise.metrics">
-                  <td class="items-start text-sm font-medium whitespace-nowrap">
-                    <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.name"></div>
-                    <AppTextInput
-                      v-if="mode == 'edit'"
-                      v-model="metric.name"
-                      type="text"
-                      placeholder="Nombre"
-                      :maxlength="50"
-                      :required="true"
-                    />
-                  </td>
-                  <td class="items-start text-sm font-medium whitespace-nowrap">
-                    <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.defaultValue"></div>
-                    <AppTextInput
-                      v-if="mode == 'edit'"
-                      v-model="metric.defaultValue"
-                      type="number"
-                      placeholder="Valor"
-                      :maxlength="50"
-                      :required="true"
-                      :minimun="0"
-                      :maximun="1000000000"
-                    />
-                  </td>
-                  <td class="items-start text-sm font-medium whitespace-nowrap">
-                    <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.measure"></div>
-                    <AppTextInput
-                      v-if="mode == 'edit'"
-                      v-model="metric.measure"
-                      type="text"
-                      placeholder="Medida"
-                      :maxlength="50"
-                      :required="false"
-                    />
-                  </td>
-                  <td
-                    class="items-start px-2 text-sm font-medium whitespace-nowrap"
-                    v-if="mode == 'edit'"
-                  >
-                    <AppButton size="sm" type="danger">&times;</AppButton>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- Tabs -->
-          <div class="flex">
-            <div
-              class="border-app cursor-pointer px-6 py-3"
-              :class="{ 'border-b-4': tab == 'stats' }"
-              @click="tab = 'stats'"
-            >
-              Estadísticas
-            </div>
-            <div
-              class="border-app cursor-pointer px-6 py-3"
-              :class="{ 'border-b-4': tab == 'history' }"
-              @click="tab = 'history'"
-            >
-              Historial
+            <div v-if="hasMetrics">
+              <div class="font-medium">Periodo</div>
+              <AppDropdown v-model="stats.period" :list="stats.list" :required="true" />
             </div>
           </div>
         </div>
@@ -133,17 +180,24 @@
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
-import { mainStore } from '@/stores/main'
-import type { AppExerciseDefinition } from '@/stores/types'
-import { DeepCopy } from '@/utils/utils'
-import { mapState } from 'pinia'
+import AppDropdown from '@/components/AppDropdown.vue'
+import type { SelectOption } from '@/components/AppDropdown.vue'
+
 import { defineComponent } from 'vue'
+
+import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
+import { mapState } from 'pinia'
+import { AuthStore } from '@/stores/auth'
 
 interface State {
   exercise: AppExerciseDefinition | null
   loading: boolean
-  mode: 'view' | 'edit'
+  mode: 'view' | 'edit' | 'deleting'
   tab: 'stats' | 'history'
+  stats: {
+    period: string
+    list: SelectOption[]
+  }
 }
 
 export default defineComponent({
@@ -157,43 +211,119 @@ export default defineComponent({
       loading: false,
       mode: 'view',
       tab: 'stats',
+      stats: {
+        period: 'last30days',
+        list: [
+          {
+            label: 'Ultimos 30 días',
+            description: '',
+            value: 'last30days',
+          },
+          {
+            label: 'Todo el tiempo',
+            description: '',
+            value: 'alltime',
+          },
+        ],
+      },
     }
   },
   components: {
     AppNavbar,
     AppButton,
     AppTextInput,
+    AppDropdown,
   },
   watch: {
     exerciseId: {
-      handler() {
-        this.loadRecord()
+      async handler() {
+        await this.loadRecord()
       },
       immediate: true,
     },
   },
   computed: {
-    ...mapState(mainStore, ['backend']),
+    ...mapState(AuthStore, ['user']),
+    hasEmptyMetric() {
+      if (!this.exercise) return false
+      return this.manager.hasEmptyMetric(this.exercise)
+    },
+    hasMetrics() {
+      if (!this.exercise) return false
+      return this.manager.hasMetrics(this.exercise)
+    },
+    cantSaveReasons() {
+      if (!this.exercise) return ['Exercise not initialized']
+      return this.manager?.cantSaveReasons(this.exercise) ?? []
+    },
+    canSave() {
+      if (!this.exercise) return false
+      return this.manager.canSave(this.exercise)
+    },
+    manager() {
+      return ExerciseManager.getInstance()
+    },
   },
   methods: {
-    loadRecord() {
+    async loadRecord() {
+      if (!this.manager) return
       // search and clone exercise
       this.loading = true
-      this.exercise = DeepCopy(
-        this.backend.exercises.find((exercise) => exercise.id === this.exerciseId),
-      )
+
+      if (this.exerciseId == 'new') {
+        this.exercise = this.manager.newRow()
+        this.mode = 'edit'
+      } else {
+        try {
+          this.exercise = await this.manager.getById(this.exerciseId ?? '')
+        } catch (error) {
+          console.error(error)
+          alert('Error while loading record.')
+        }
+      }
+
+      if (!this.exercise) {
+        this.$router.push({ name: 'exercise', params: { exerciseId: 'new' } })
+      }
+
       this.loading = false
     },
     edit() {
       this.mode = 'edit'
     },
-    delete() {},
-    save() {
-      this.mode = 'view'
+    async deleteRow() {
+      if (!this.exercise) return
+      try {
+        await this.manager.delete(this.exercise)
+        this.$router.push({ name: 'exercises' })
+      } catch (error) {
+        console.error(error)
+        alert('Error while deleting the record.')
+      }
+    },
+    async save() {
+      if (!this.exercise) return
+      try {
+        const isNew = this.exerciseId == 'new'
+        await this.manager.save(this.exercise, isNew)
+
+        // after save
+        this.mode = 'view'
+        if (this.exerciseId == 'new') {
+          this.$router.push({ name: 'exercise', params: { exerciseId: this.exercise.id } })
+        }
+      } catch (error) {
+        console.error(error)
+        alert('Error while saving the record.')
+      }
     },
     cancel() {
-      this.loadRecord()
+      if (this.exerciseId == 'new') {
+        this.$router.push({ name: 'exercises' })
+        return
+      }
       this.mode = 'view'
+      this.loadRecord()
     },
   },
   mounted() {

@@ -4,6 +4,11 @@
     <!-- List -->
     <div class="flex flex-col items-center p-3 sm:p-8">
       <div class="flex w-full flex-col space-y-3 sm:w-140 sm:space-y-6">
+        <div class="flex items-center justify-end">
+          <AppButton size="md" :disabled="false" type="primary" @click="newRecord"
+            >&plus; Crear Ejercicio</AppButton
+          >
+        </div>
         <RouterLink
           :to="{ name: 'exercise', params: { exerciseId: exercise.id } }"
           v-for="exercise in exercises"
@@ -42,8 +47,11 @@
 </template>
 
 <script lang="ts">
+import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
+import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
-import type { AppExerciseDefinition } from '@/stores/types'
+import { mapState } from 'pinia'
+import { mainStore } from '@/stores/main'
 import { defineComponent } from 'vue'
 
 interface State {
@@ -54,42 +62,30 @@ export default defineComponent({
   name: 'AppExcercise',
   data(): State {
     return {
-      exercises: [
-        {
-          id: '1234',
-          archived: false,
-          userId: '1234',
-          metrics: [
-            {
-              name: 'Repeticiones',
-              measure: '',
-              defaultValue: '10',
-            },
-            {
-              name: 'Peso',
-              measure: 'kg',
-              defaultValue: '15',
-            },
-            {
-              name: 'Distancia',
-              measure: 'km',
-              defaultValue: '5',
-            },
-          ],
-          name: 'Biceps',
-          createdDate: null,
-          modifiedDate: null,
-        },
-      ],
+      exercises: [],
     }
   },
   components: {
     AppNavbar,
+    AppButton,
   },
   computed: {},
-  methods: {},
+  methods: {
+    newRecord() {
+      this.$router.push({ name: 'exercise', params: { exerciseId: 'new' } })
+    },
+    async loadRecords() {
+      const manager = ExerciseManager.getInstance()
+      try {
+        this.exercises = await manager.getRows()
+      } catch (error) {
+        console.error(error)
+        alert('Error in exercises sync')
+      }
+    },
+  },
   mounted() {
-    //
+    this.loadRecords()
   },
 })
 </script>
