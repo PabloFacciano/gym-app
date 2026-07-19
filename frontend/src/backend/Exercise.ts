@@ -209,7 +209,10 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
     if (found) return found
 
     // get from supabase
-    const { data, error } = await supabase.from('exercise_definition').select().eq('id', id)
+    const { data, error } = await supabase
+      .from('exercise_definition')
+      .select()
+      .eq('id', id)
       .eq('deleted', false)
     if (error) throw error
 

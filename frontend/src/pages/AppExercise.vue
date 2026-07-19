@@ -71,7 +71,7 @@ export default defineComponent({
   components: {
     AppNavbar,
     AppButton,
-    AppLoader
+    AppLoader,
   },
   computed: {
     manager() {
@@ -86,14 +86,14 @@ export default defineComponent({
       this.$router.push({ name: 'exercise', params: { exerciseId: 'new' } })
     },
     async loadRecords() {
-      this.loading = true;
+      this.loading = true
       try {
         this.exercises = await this.manager.getRows()
       } catch (error) {
         console.error(error)
         alert('Error in exercises sync')
       }
-      this.loading = false;
+      this.loading = false
     },
   },
   mounted() {
