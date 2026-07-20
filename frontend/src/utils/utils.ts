@@ -2,7 +2,7 @@ export function deepCopy(obj: any) {
   if (obj == null) return null
   return JSON.parse(JSON.stringify(obj))
 }
-export function hasDuplicates(arr: any[]) {
+export function hasDuplicates(arr: any[]): boolean {
   if (!arr || arr.length <= 1) return false
   return new Set(arr).size !== arr.length
 }
@@ -19,4 +19,8 @@ export function tryJsonParse(obj: string, defaultObj: any) {
 export function sleep(ms: number) {
   if (ms <= 0) return
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export function isNumeric(val: any): boolean {
+  return !isNaN(val) && val !== null && val !== ''
 }
