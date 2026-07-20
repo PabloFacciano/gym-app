@@ -8,7 +8,6 @@ export interface AppExerciseInstance extends IRow {
   exerciseDefinitionId: string
   exerciseDuration: number
   restDuration: number
-  effort: number | null
   metric01: number | null
   metric02: number | null
   metric03: number | null
@@ -28,7 +27,6 @@ export interface DbExerciseInstance extends IRow {
   exercise_definition_id: string
   exercise_duration: number | null
   rest_duration: number | null
-  effort: number | null
   metric01: number | null
   metric02: number | null
   metric03: number | null
@@ -62,7 +60,6 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       id: db.id,
       createdDate: new Date(db.created_date),
       modifiedDate: new Date(db.modified_date),
-      effort: db.effort ?? 0,
       exerciseDefinitionId: db.exercise_instance_id,
       exerciseDuration: db.exercise_duration ?? 0,
       restDuration: db.rest_duration ?? 0,
@@ -85,7 +82,6 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       exerciseDefinitionId: '',
       exerciseDuration: 0,
       restDuration: 0,
-      effort: 0,
       metric01: null,
       metric02: null,
       metric03: null,
@@ -125,7 +121,6 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       .from('exercise_instance')
       .upsert({
         id: row.id,
-        effort: row.effort,
         exercise_duration: row.exerciseDuration,
         rest_duration: row.restDuration,
         exercise_definition_id: row.exerciseDefinitionId,
