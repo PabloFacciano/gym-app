@@ -94,9 +94,9 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
     }
 
     // required metric fields
-    const hasEmpty = row.metrics?.some((metric) => !(metric.name && metric.defaultValue))
+    const hasEmpty = row.metrics?.some((metric) => !metric.name)
     if (hasEmpty) {
-      reasons.push('Completar Nombre y Valor de las métricas.')
+      reasons.push('Completar Nombre de las métricas.')
     }
 
     //
@@ -134,6 +134,12 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
 
     // check again after values had posibly changed
     if (!this.canSave(row)) return
+
+    // check if coming row is different than current row, then skip save (no changes)
+    const currentRow = this.database.find((r) => r.id === row.id)
+    const dp1 = JSON.stringify(row)
+    const dp2 = JSON.stringify(currentRow)
+    if (currentRow !== row && dp1 === dp2) return // compare if different object-references & not equals objects
 
     // update/insert in db
     const { data, error } = await supabase
@@ -188,6 +194,7 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
         .from('exercise_definition')
         .select('*')
         .eq('deleted', false)
+        .order('name', { ascending: true })
       if (error) throw error
 
       // ETL
@@ -223,16 +230,16 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
     return newRow
   }
 
-  hasEmptyMetric(row: AppExerciseDefinition) {
+  hasEmptyMetric(row: AppExerciseDefinition): boolean {
     if (!row.metrics) return false
     const hasEmpty = row.metrics?.some(
       (metric) => !(metric.name || metric.measure || metric.defaultValue),
     )
-    return hasEmpty
+    return hasEmpty ?? false
   }
 
-  hasMetrics(row: AppExerciseDefinition) {
-    return row && row.metrics && row.metrics.length > 0
+  hasMetrics(row: AppExerciseDefinition): boolean {
+    return (row && row.metrics && row.metrics.length > 0) ?? false
   }
 
   addMetric(row: AppExerciseDefinition) {

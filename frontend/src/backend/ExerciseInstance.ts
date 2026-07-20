@@ -1,6 +1,7 @@
 import { supabase } from '@/utils/supabase'
 import type { IDataManager, IRow } from './_base'
-import { deepCopy } from '@/utils/utils'
+import { deepCopy, isNumeric } from '@/utils/utils'
+import type { AppExerciseDefinition } from './Exercise'
 
 export interface AppExerciseInstance extends IRow {
   id: string
@@ -60,7 +61,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       id: db.id,
       createdDate: new Date(db.created_date),
       modifiedDate: new Date(db.modified_date),
-      exerciseDefinitionId: db.exercise_instance_id,
+      exerciseDefinitionId: db.exercise_definition_id,
       exerciseDuration: db.exercise_duration ?? 0,
       restDuration: db.rest_duration ?? 0,
       metric01: db.metric01,
@@ -115,6 +116,20 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     if (!this.canSave(row)) {
       throw new Error(`Validation failed: Cannot save exercise instance "${row.id}".`)
     }
+
+    // fix metrics values
+    for (let i = 0; i < 9; i++) {
+      const metricValueStr = row['metric0' + i]
+      if (!isNumeric(metricValueStr)) {
+        row['metric0' + i] = null // dont save non-valid values like ''
+      }
+    }
+
+    // check if coming row is different than current row, then skip save (no changes)
+    const currentRow = this.database.find((r) => r.id === row.id)
+    const dp1 = JSON.stringify(row)
+    const dp2 = JSON.stringify(currentRow)
+    if (currentRow !== row && dp1 === dp2) return // compare if different object-references & not equals objects
 
     // update/insert in db
     const { data, error } = await supabase
@@ -210,5 +225,75 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     const newRow = this.map(data[0])
     this.database.push(newRow)
     return newRow
+  }
+
+  async getByDate(date: Date): Promise<AppExerciseInstance[]> {
+    date.setHours(0, 0, 0, 0)
+
+    // search locally
+    let rows = this.database.filter((row) => {
+      const isSameDate: boolean =
+        (row.createdDate &&
+          row.createdDate?.getUTCFullYear() == date.getUTCFullYear() &&
+          row.getUTCMonth() === date.getUTCMonth() &&
+          row.getUTCDate() === date.getUTCDate()) ??
+        false
+      return isSameDate
+    })
+    if (rows && rows.length > 0) {
+      return rows
+    }
+
+    // return current promise
+    if (this.rowsLoadPromise) {
+      return this.rowsLoadPromise
+    }
+
+    const endDate = new Date() // Current date and time
+    endDate.setDate(date.getDate() + 1)
+    endDate.setHours(0, 0, 0, 0)
+
+    // ask supabase
+    this.rowsLoadPromise = (async () => {
+      // get from supabase
+      let { data: exercise_instance, error } = await supabase
+        .from('exercise_instance')
+        .select('*')
+        .gte('created_at', date.toISOString()) // Start Date (Inclusive)
+        .lte('created_at', endDate.toDateString()) // End Date (Inclusive)
+        .eq('deleted', false)
+      if (error) throw error
+
+      // ETL
+      let resultRows: AppExerciseInstance[] = []
+      exercise_instance?.forEach((exercise: DbExerciseInstance) => {
+        const newExercise = this.map(exercise)
+        resultRows.push(newExercise)
+        this.database.push(newExercise)
+      })
+
+      return [...resultRows]
+    })()
+
+    return this.rowsLoadPromise
+  }
+
+  getNewByExerciseDefinition(exercise: AppExerciseDefinition): AppExerciseInstance {
+    const row = this.newRow()
+
+    row.exerciseDefinitionId = exercise.id
+
+    if (exercise.metrics && exercise.metrics.length > 0) {
+      for (let i = 0; i < exercise.metrics.length; i++) {
+        if (i >= 9) {
+          console.warn('Exceeded metric count supported. count=' + exercise.metrics.length)
+          break
+        }
+        const metric = exercise.metrics[i]
+        row['metric0' + i] = metric?.defaultValue
+      }
+    }
+
+    return row
   }
 }
