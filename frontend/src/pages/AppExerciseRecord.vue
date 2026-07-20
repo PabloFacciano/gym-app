@@ -74,7 +74,7 @@
                 </tr>
               </thead>
               <tbody class="" :class="{ 'divide-y divide-neutral-500': mode == 'view' }">
-                <tr v-for="(metric, index) in exercise.metrics">
+                <tr v-for="(metric, index) in exercise.metrics" :key="index">
                   <td class="items-start text-sm font-medium whitespace-nowrap">
                     <div v-if="mode == 'view'" class="px-4 py-3" v-text="metric.name"></div>
                     <AppTextInput
@@ -94,7 +94,7 @@
                       type="number"
                       placeholder="Valor"
                       :maxlength="50"
-                      :required="true"
+                      :required="false"
                       :minimun="0"
                       :maximun="1000000000"
                     />
@@ -135,7 +135,7 @@
             >
           </div>
           <!-- Tabs -->
-          <div class="flex -mb-8" v-if="mode == 'view'">
+          <div class="-mb-6 flex flex-wrap sm:-mb-8" v-if="mode == 'view'">
             <div
               class="border-app cursor-pointer px-6 py-3"
               :class="{ 'border-b-4': tab == 'stats' }"

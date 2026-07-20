@@ -20,7 +20,10 @@
     }"
     @click="buttonClick"
   >
-    <slot>Button Text</slot>
+    <div class="flex-around flex items-center space-x-3">
+      <img v-if="icon != null" class="h-5 w-5" :src="icon" alt="icon" />
+      <div><slot>Button Text</slot></div>
+    </div>
   </button>
 </template>
 
@@ -45,6 +48,11 @@ export default defineComponent({
       type: String,
       required: false,
       default: 'md', // 'sm' | 'md' | 'lg'
+    },
+    icon: {
+      type: String,
+      required: false,
+      default: null,
     },
   },
   data() {

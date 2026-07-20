@@ -6,11 +6,12 @@
       <div
         v-if="showSidebar"
         @click="showSidebar = !showSidebar"
-        class="fixed top-0 bottom-0 left-0 flex w-9/10 cursor-pointer flex-col bg-sky-600 shadow-sm sm:w-auto sm:min-w-60"
+        class="fixed top-0 bottom-0 left-0 z-1000 flex w-9/10 cursor-pointer flex-col bg-sky-600 shadow-sm sm:w-auto sm:min-w-60"
       >
         <div class="border-app flex items-center space-x-3 border-b p-4">
           <img
-            class="h-6 w-6"
+            class="pointer-events-none h-6 w-6 select-none"
+            draggable="false"
             src="https://img.icons8.com/ffffff/ios-filled/50/back--v1.png"
             alt="menu--v1"
           />
@@ -32,7 +33,8 @@
       class="flex cursor-pointer items-center space-x-4 p-4"
     >
       <img
-        class="h-6 w-6"
+        class="pointer-events-none h-6 w-6 select-none"
+        draggable="false"
         src="https://img.icons8.com/ffffff/ios-filled/50/menu--v1.png"
         alt="menu--v1"
       />

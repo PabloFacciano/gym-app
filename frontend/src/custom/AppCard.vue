@@ -1,8 +1,6 @@
 <template>
-  <div class="flex flex-col items-center p-6 sm:p-8">
-    <div class="flex w-full flex-col space-y-4 sm:w-140 sm:space-y-6">
-      <slot></slot>
-    </div>
+  <div class="space-y-4 rounded bg-neutral-700 px-6 py-4 shadow sm:space-y-6 sm:p-6">
+    <slot></slot>
   </div>
 </template>
 
@@ -12,7 +10,7 @@ import { defineComponent } from 'vue'
 interface State {}
 
 export default defineComponent({
-  name: 'AppCenter',
+  name: 'AppCard',
   props: {},
   data(): State {
     return {}
