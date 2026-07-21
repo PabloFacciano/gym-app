@@ -76,21 +76,14 @@ export default defineComponent({
       return this.exercises.map((def) => {
         return {
           exerciseDefinition: def,
-          exerciseInstance: this.getInstanceByExercercise(def),
+          exerciseInstance:
+            this.exerciseInstances.find((instance) => instance.exerciseDefinitionId === def.id) ??
+            this.exerciseInstanceManager.getNewByExerciseDefinition(def),
         }
       })
     },
   },
   methods: {
-    getInstanceByExercercise(exercise: AppExerciseDefinition) {
-      const row = this.exerciseInstances.find(
-        (instance) => instance.exerciseDefinitionId === exercise.id,
-      )
-      if (row) return row
-
-      const newRow = this.exerciseInstanceManager.getNewByExerciseDefinition(exercise)
-      return newRow
-    },
     async loadExercises() {
       this.loadingExercises = true
       try {
