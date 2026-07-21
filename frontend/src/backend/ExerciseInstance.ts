@@ -57,7 +57,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
   private rowsLoadPromise: Promise<AppExerciseInstance[]> | null = null
 
   map(db: DbExerciseInstance): AppExerciseInstance {
-    return {
+    const row = {
       id: db.id,
       createdDate: new Date(db.created_date),
       modifiedDate: new Date(db.modified_date),
@@ -75,6 +75,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       deleted: db.boolean,
       userId: db.user_id,
     }
+    return row
   }
 
   newRow(): AppExerciseInstance {
@@ -234,9 +235,9 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     let rows = this.database.filter((row) => {
       const isSameDate: boolean =
         (row.createdDate &&
-          row.createdDate?.getUTCFullYear() == date.getUTCFullYear() &&
-          row.getUTCMonth() === date.getUTCMonth() &&
-          row.getUTCDate() === date.getUTCDate()) ??
+          row.createdDate?.getUTCFullYear() === date.getUTCFullYear() &&
+          row.createdDate?.getUTCMonth() === date.getUTCMonth() &&
+          row.createdDate?.getUTCDate() === date.getUTCDate()) ??
         false
       return isSameDate
     })
@@ -244,38 +245,28 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       return rows
     }
 
-    // return current promise
-    if (this.rowsLoadPromise) {
-      return this.rowsLoadPromise
-    }
-
     const endDate = new Date() // Current date and time
     endDate.setDate(date.getDate() + 1)
     endDate.setHours(0, 0, 0, 0)
 
-    // ask supabase
-    this.rowsLoadPromise = (async () => {
-      // get from supabase
-      let { data: exercise_instance, error } = await supabase
-        .from('exercise_instance')
-        .select('*')
-        .gte('created_at', date.toISOString()) // Start Date (Inclusive)
-        .lte('created_at', endDate.toDateString()) // End Date (Inclusive)
-        .eq('deleted', false)
-      if (error) throw error
+    // get from supabase
+    let { data: exercise_instance, error } = await supabase
+      .from('exercise_instance')
+      .select('*')
+      .gte('created_date', date.toISOString()) // Start Date (Inclusive)
+      .lte('created_date', endDate.toDateString()) // End Date (Inclusive)
+      .eq('deleted', false)
+    if (error) throw error
 
-      // ETL
-      let resultRows: AppExerciseInstance[] = []
-      exercise_instance?.forEach((exercise: DbExerciseInstance) => {
-        const newExercise = this.map(exercise)
-        resultRows.push(newExercise)
-        this.database.push(newExercise)
-      })
+    // ETL
+    let resultRows: AppExerciseInstance[] = []
+    exercise_instance?.forEach((exercise: DbExerciseInstance) => {
+      const newExercise = this.map(exercise)
+      resultRows.push(newExercise)
+      this.database.push(newExercise)
+    })
 
-      return [...resultRows]
-    })()
-
-    return this.rowsLoadPromise
+    return [...resultRows]
   }
 
   getNewByExerciseDefinition(exercise: AppExerciseDefinition): AppExerciseInstance {
