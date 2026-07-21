@@ -74,11 +74,15 @@ export default defineComponent({
     },
     exerciseList() {
       return this.exercises.map((def) => {
+
+        let instance = this.exerciseInstances.find((_instance) => _instance.exerciseDefinitionId === def.id) ??
+            this.exerciseInstanceManager.getNewByExerciseDefinition(def)
+        instance.createdDate = new Date(this.selectedDate); // so it belongs to selected date
+        instance.modifiedDate = new Date(this.selectedDate); // so it belongs to selected date
+
         return {
           exerciseDefinition: def,
-          exerciseInstance:
-            this.exerciseInstances.find((instance) => instance.exerciseDefinitionId === def.id) ??
-            this.exerciseInstanceManager.getNewByExerciseDefinition(def),
+          exerciseInstance: instance
         }
       })
     },
