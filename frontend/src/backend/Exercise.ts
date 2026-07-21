@@ -64,6 +64,11 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
       name: '',
       metrics: [
         {
+          name: 'Esfuerzo',
+          defaultValue: '10',
+          measure: '',
+        },
+        {
           name: 'Repeticiones',
           defaultValue: '30',
           measure: '',
