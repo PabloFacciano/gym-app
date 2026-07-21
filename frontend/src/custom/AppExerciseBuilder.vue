@@ -17,7 +17,19 @@
       </div>
       <div class="grow text-xl font-medium" v-text="exercise.name"></div>
       <!-- subicons -->
-      <div class="flex space-x-3">
+      <div class="flex items-center space-x-3">
+        <div
+          v-if="instanceSynced"
+          class="rounded-full p-3 "
+          :class="{ 'cursor-pointer hover:bg-neutral-500': !closed }"
+          title="Guardado con éxito!"
+        >
+          <img
+            class="h-6 w-6 opacity-50"
+            src="https://img.icons8.com/ffffff/ios-filled/24/cloud-checked.png"
+            alt="exercise synced"
+          />
+        </div>
         <div
           @click.stop="toggleCardVisibility"
           class="cursor-pointer rounded-full p-3 hover:bg-neutral-500"
@@ -231,6 +243,9 @@ export default defineComponent({
     },
   },
   computed: {
+    instanceSynced() {
+      return !this.savingInstance && !this.editingMetrics && this.exerciseCopy?.userId != null
+    },
     exerciseManager() {
       return ExerciseManager.getInstance()
     },
@@ -294,7 +309,7 @@ export default defineComponent({
     },
     async saveRecord() {
       if (!this.exerciseCopy || this.savingInstance) return
-      
+
       if (this.exerciseCopy.exerciseDuration === 0 && this.exerciseCopy.restDuration === 0) {
         return // dont save -non started- exercise
       }
