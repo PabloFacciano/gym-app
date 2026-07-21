@@ -127,6 +127,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     }
 
     // check if coming row is different than current row, then skip save (no changes)
+    const NOW = new Date()
     const currentRow = this.database.find((r) => r.id === row.id)
     const dp1 = JSON.stringify(row)
     const dp2 = JSON.stringify(currentRow)
@@ -148,8 +149,11 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
         metric06: row.metric06,
         metric07: row.metric07,
         metric08: row.metric08,
+        created_date: (new Date(row.createdDate ?? NOW)).toISOString(),
+        modified_date: (new Date(row.modifiedDate ?? NOW)).toISOString(),
       } as DbExerciseInstance)
       .select()
+      // row.createdDate is a string because the AppExerciseBuilder deepCopy converts "Date" value to "string" value
     if (error) throw error
 
     if (!data || data.length == 0) {
