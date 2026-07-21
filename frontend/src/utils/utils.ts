@@ -24,3 +24,10 @@ export function sleep(ms: number) {
 export function isNumeric(val: any): boolean {
   return !isNaN(val) && val !== null && val !== ''
 }
+
+export function getRandomVibrantColor() {
+  const hue = Math.floor(Math.random() * 360) // 0-360 degrees
+  const saturation = 80 // Fixed at 80% for vividness
+  const lightness = 60 // Fixed at 60% for brightness
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+}
