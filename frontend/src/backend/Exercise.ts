@@ -1,6 +1,6 @@
 import { supabase } from '@/utils/supabase'
 import type { IDataManager, IRow } from './_base'
-import { deepCopy, hasDuplicates, tryJsonParse } from '@/utils/utils'
+import { deepCopy, hasDuplicates, orderArrByDateField, tryJsonParse } from '@/utils/utils'
 
 export interface AppExerciseMetric {
   name: string
@@ -166,6 +166,8 @@ export class ExerciseManager implements IDataManager<AppExerciseDefinition> {
     } else {
       this.database.push(newRow)
     }
+
+    orderArrByDateField(this.database, 'createdDate')
   }
 
   async delete(row: AppExerciseDefinition): Promise<void> {

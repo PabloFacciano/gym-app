@@ -31,3 +31,18 @@ export function getRandomVibrantColor() {
   const lightness = 60 // Fixed at 60% for brightness
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
+
+export function orderArrByDateField(arr:any[], dateFieldName:string) {
+  if (!arr || arr.length == 0) return
+  arr.sort((a, b) => {
+    // If both are null, treat them as equal
+    if (a[dateFieldName] === null && b[dateFieldName] === null) return 0
+    // If only 'a' is null, push 'a' to the end (return positive)
+    if (a[dateFieldName] === null) return 1
+    // If only 'b' is null, push 'b' to the end (return negative)
+    if (b[dateFieldName] === null) return -1
+
+    // Both are valid dates, subtract timestamps
+    return a[dateFieldName] - b[dateFieldName]
+  })
+}

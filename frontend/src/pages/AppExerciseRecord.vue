@@ -235,7 +235,7 @@ import { mapState } from 'pinia'
 import { AuthStore } from '@/stores/auth'
 import AppExerciseBuilder from '@/custom/AppExerciseBuilder.vue'
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance'
-import { deepCopy, getRandomVibrantColor } from '@/utils/utils'
+import { deepCopy, getRandomVibrantColor, orderArrByDateField } from '@/utils/utils'
 
 interface State {
   exercise: AppExerciseDefinition | null
@@ -469,17 +469,7 @@ export default defineComponent({
           this.exercise = await this.manager.getById(this.exerciseId ?? '')
 
           const rows = await this.instanceManager.getRows()
-          rows.sort((a, b) => {
-            // If both are null, treat them as equal
-            if (a.createdDate === null && b.createdDate === null) return 0
-            // If only 'a' is null, push 'a' to the end (return positive)
-            if (a.createdDate === null) return 1
-            // If only 'b' is null, push 'b' to the end (return negative)
-            if (b.createdDate === null) return -1
-
-            // Both are valid dates, subtract timestamps
-            return a.createdDate - b.createdDate
-          })
+          orderArrByDateField(rows, 'createdDate')
           this.instances = rows.filter((row) => row.exerciseDefinitionId === this.exerciseId)
         } catch (error) {
           console.error(error)
