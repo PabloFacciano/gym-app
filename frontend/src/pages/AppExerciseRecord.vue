@@ -166,20 +166,25 @@
           <div v-if="hasMetrics" class="space-y-4">
             <div class="font-medium">Periodo</div>
             <AppDropdown v-model="stats.period" :list="stats.list" :required="true" />
-            <AppChart :data="chartData" />
+
+            <apexchart
+              class="rounded-lg border border-neutral-600 bg-neutral-900 p-3"
+              type="bar"
+              :options="chartOptionsForGraph"
+              :series="chartDataForGraph"
+            ></apexchart>
 
             <!-- Labels -->
-            <div class="space-y-3 py-4">
+            <div class="space-y-3 py-4" v-if="false">
               <div
-                v-for="(serie, i) in chartData"
+                v-for="(serie, i) in chartSeries"
                 :key="i"
                 class="flex items-center space-x-4 rounded bg-neutral-900 p-3"
               >
                 <div
                   class="h-4 w-4 rounded-full"
-                  :class="{
-                    'bg-emerald-500': i == 0,
-                    'bg-sky-500': i == 1,
+                  :style="{
+                    'background-color': serie.color,
                   }"
                 ></div>
                 <div>{{ serie.name }}</div>
@@ -214,7 +219,6 @@
 </template>
 
 <script lang="ts">
-import AppChart, { type ChartSerie } from '@/components/AppChart.vue'
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
@@ -231,6 +235,7 @@ import { mapState } from 'pinia'
 import { AuthStore } from '@/stores/auth'
 import AppExerciseBuilder from '@/custom/AppExerciseBuilder.vue'
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance'
+import { deepCopy, getRandomVibrantColor } from '@/utils/utils'
 
 interface State {
   exercise: AppExerciseDefinition | null
@@ -243,7 +248,19 @@ interface State {
     list: SelectOption[]
   }
   showDeleteModal: boolean
-  chartData: ChartSerie[]
+}
+
+export interface ChartSerie {
+  color: string
+  name: string
+  values: {
+    value: Number
+    date: Date
+  }[]
+}
+export interface GraphSerie {
+  name: string
+  data: (number | null)[]
 }
 
 export default defineComponent({
@@ -259,36 +276,9 @@ export default defineComponent({
       showDeleteModal: false,
       mode: 'view',
       tab: 'stats',
-      chartData: [
-        {
-          name: 'Series A (Green Allocation)',
-          values: [
-            { value: 10, date: new Date('2026-03-10T00:00:00-03:00') },
-            { value: 15, date: new Date('2026-03-12T08:30:00-03:00') },
-            { value: 20, date: new Date('2026-05-13T12:00:00-03:00') },
-            { value: 25, date: new Date('2026-03-15T08:30:00-03:00') },
-            { value: 30, date: new Date('2026-05-18T12:00:00-03:00') },
-            { value: 35, date: new Date('2026-07-20T23:59:59-03:00') },
-          ],
-        },
-        {
-          name: 'Series B (Blue Network)',
-          values: [
-            { value: 110, date: new Date('2026-03-10T00:00:00-03:00') },
-            { value: 120, date: new Date('2026-03-12T08:30:00-03:00') },
-            { value: 130, date: new Date('2026-05-03T12:00:00-03:00') },
-            { value: 140, date: new Date('2026-07-20T23:59:59-03:00') },
-          ],
-        },
-      ],
       stats: {
-        period: 'last30days',
+        period: 'alltime',
         list: [
-          {
-            label: 'Ultimos 30 días',
-            description: '',
-            value: 'last30days',
-          },
           {
             label: 'Todo el tiempo',
             description: '',
@@ -305,7 +295,6 @@ export default defineComponent({
     AppDropdown,
     AppModal,
     AppLoader,
-    AppChart,
     AppCenter,
     AppExerciseBuilder,
   },
@@ -319,6 +308,129 @@ export default defineComponent({
   },
   computed: {
     ...mapState(AuthStore, ['user']),
+    chartOptionsForGraph() {
+      const xCategories: string[] = this.chartXAxisDates.map((dt: Date) => {
+        return dt.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
+      })
+
+      return {
+        chart: {
+          type: 'bar',
+          background: 'transparent',
+        },
+        theme: {
+          mode: 'dark',
+          palette: 'palette10',
+          monochrome: {
+            enabled: true,
+            color: '#007acc',
+          },
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            borderRadius: 5,
+            borderRadiusApplication: 'end',
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent'],
+        },
+        xaxis: {
+          categories: xCategories,
+        },
+        fill: {
+          opacity: 1,
+        },
+      }
+    },
+    chartXAxisDates(): Date[] {
+      const timestamps = this.groupedSeriesData.flatMap((serie) =>
+        serie.values.map((val) => val.date.getTime()),
+      )
+
+      return Array.from(new Set(timestamps)).map((time) => new Date(time))
+    },
+    chartSeries(): ChartSerie[] {
+      const metrics = this.exercise?.metrics ?? []
+
+      return metrics.map((metric) => ({
+        color: getRandomVibrantColor(),
+        name: metric.measure ? `${metric.name} ${metric.measure}` : metric.name,
+        values: [],
+      })) as ChartSerie[]
+    },
+
+    groupedSeriesData(): ChartSerie[] {
+      const TODAY = new Date()
+      const series: ChartSerie[] = []
+
+      // Step 1: Filter instances to keep only the FIRST instance per calendar date
+      const seenDates = new Set<string>()
+      const uniqueInstancesByDate: Array<{ dateKey: string; dateObj: Date; instance: any }> = []
+
+      for (const instance of this.instances) {
+        const rawDate = instance.createdDate ? new Date(instance.createdDate) : TODAY
+
+        // Standardize to YYYY-MM-DD key for grouping
+        const dateKey = rawDate.toISOString().split('T')[0] ?? ''
+
+        if (!seenDates.has(dateKey)) {
+          seenDates.add(dateKey)
+
+          // Create a normalized Date object representing midnight UTC (no time part)
+          const dateWithoutTime = new Date(`${dateKey}T00:00:00.000Z`)
+
+          uniqueInstancesByDate.push({
+            dateKey,
+            dateObj: dateWithoutTime,
+            instance,
+          })
+        }
+      }
+
+      // Step 2: Build the series data using only the unique daily instances
+      for (let i = 0; i < this.chartSeries.length; i++) {
+        if (i >= 9) {
+          console.warn('Exceeded metric count supported. count=' + this.chartSeries.length)
+          break
+        }
+
+        const serie = deepCopy(this.chartSeries[i])
+        if (!serie) continue
+
+        // Standardize metric key e.g., 'metric01', 'metric02'
+        const metricKey = `metric0${i + 1}`
+
+        uniqueInstancesByDate.forEach(({ dateObj, instance }) => {
+          const rawValue = instance[metricKey]
+          const value: number | null = typeof rawValue === 'number' ? rawValue : null
+
+          serie.values.push({
+            value,
+            date: dateObj, // Date object with time set to 00:00:00
+          })
+        })
+
+        series.push(serie)
+      }
+
+      return series
+    },
+
+    chartDataForGraph() {
+      // Reads directly from this.groupedSeriesData
+      return this.groupedSeriesData.map((serie) => ({
+        name: serie.name,
+        data: serie.values.map((v) => v.value),
+      }))
+    },
     hasEmptyMetric() {
       if (!this.exercise) return false
       return this.manager.hasEmptyMetric(this.exercise)
