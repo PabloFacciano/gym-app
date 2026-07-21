@@ -106,6 +106,10 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
       reasons.push('Debes asociar un ejercicio.')
     }
 
+    if (row.exerciseDuration === 0 && row.restDuration === 0) {
+      reasons.push('Debes comenzar el ejercicio antes de guardar.')
+    }
+
     return reasons
   }
 

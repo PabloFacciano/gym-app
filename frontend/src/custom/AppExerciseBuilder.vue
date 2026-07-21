@@ -294,6 +294,10 @@ export default defineComponent({
     },
     async saveRecord() {
       if (!this.exerciseCopy || this.savingInstance) return
+      
+      if (this.exerciseCopy.exerciseDuration === 0 && this.exerciseCopy.restDuration === 0) {
+        return // dont save -non started- exercise
+      }
       this.savingInstance = true
       this.updateExerciseCopyTime()
       await this.exerciseInstanceManager.save(this.exerciseCopy)
