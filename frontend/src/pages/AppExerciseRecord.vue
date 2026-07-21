@@ -187,6 +187,16 @@
             </div>
           </div>
         </div>
+        <!-- History -->
+        <div v-if="tab == 'history'" class="space-y-4">
+          <AppExerciseBuilder
+            v-for="instance in instances"
+            :key="instance.id"
+            :exercise="exercise"
+            :exercise-instance="instance"
+            :enabled="false"
+          />
+        </div>
       </AppCenter>
     </div>
     <!-- Delete Modal -->
@@ -219,9 +229,12 @@ import { defineComponent } from 'vue'
 import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
 import { mapState } from 'pinia'
 import { AuthStore } from '@/stores/auth'
+import AppExerciseBuilder from '@/custom/AppExerciseBuilder.vue'
+import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance'
 
 interface State {
   exercise: AppExerciseDefinition | null
+  instances: AppExerciseInstance[]
   loading: boolean
   mode: 'view' | 'edit'
   tab: 'stats' | 'history'
@@ -241,6 +254,7 @@ export default defineComponent({
   data(): State {
     return {
       exercise: null,
+      instances: [],
       loading: false,
       showDeleteModal: false,
       mode: 'view',
@@ -293,6 +307,7 @@ export default defineComponent({
     AppLoader,
     AppChart,
     AppCenter,
+    AppExerciseBuilder,
   },
   watch: {
     exerciseId: {
@@ -320,6 +335,9 @@ export default defineComponent({
       if (!this.exercise) return false
       return this.manager.canSave(this.exercise)
     },
+    instanceManager() {
+      return ExerciseInstanceManager.getInstance()
+    },
     manager() {
       return ExerciseManager.getInstance()
     },
@@ -332,10 +350,25 @@ export default defineComponent({
 
       if (this.exerciseId == 'new') {
         this.exercise = this.manager.newRow()
+        this.instances = []
         this.mode = 'edit'
       } else {
         try {
           this.exercise = await this.manager.getById(this.exerciseId ?? '')
+
+          const rows = await this.instanceManager.getRows()
+          rows.sort((a, b) => {
+            // If both are null, treat them as equal
+            if (a.createdDate === null && b.createdDate === null) return 0
+            // If only 'a' is null, push 'a' to the end (return positive)
+            if (a.createdDate === null) return 1
+            // If only 'b' is null, push 'b' to the end (return negative)
+            if (b.createdDate === null) return -1
+
+            // Both are valid dates, subtract timestamps
+            return a.createdDate - b.createdDate
+          })
+          this.instances = rows.filter((row) => row.exerciseDefinitionId === this.exerciseId)
         } catch (error) {
           console.error(error)
           alert('Error while loading record.')

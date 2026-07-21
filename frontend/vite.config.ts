@@ -27,10 +27,12 @@ export default defineConfig(({ mode }) => {
     },
     // Dynamically set base path from environment or default to root
     base: env.VITE_BASE_PATH || '/',
+    publicDir: 'public', 
     build: {
       sourcemap: env.ENV === 'production' ? 'hidden' : true,
       // 1. Ensure the assetsDir is empty so nested paths aren't created by default
       assetsDir: '',
+      copyPublicDir: true, 
       rollupOptions: {
         output: {
           // 2. Main entry JS files

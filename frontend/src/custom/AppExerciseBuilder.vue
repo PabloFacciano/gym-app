@@ -42,8 +42,8 @@
     <div
       v-if="hasMetrics && !closed"
       class="overflow-x-auto rounded-lg border border-neutral-500"
-      :class="{ 'cursor-pointer hover:bg-neutral-600': !editingMetrics }"
-      @click="editingMetrics = true"
+      :class="{ 'cursor-pointer hover:bg-neutral-600': !editingMetrics && enabled }"
+      @click="editMetrics"
     >
       <div class="min-w-full divide-y divide-neutral-500">
         <div
@@ -82,8 +82,9 @@
     <!-- Elapsed time  -->
     <div class="grid grid-cols-2 text-center" v-if="!closed">
       <div
-        class="cursor-pointer space-y-3 rounded p-3 transition-[background-color] duration-1000"
+        class="space-y-3 rounded p-3 transition-[background-color] duration-1000"
         :class="{
+          'cursor-pointer': enabled,
           'border-app border': state === 'exercise',
           'bg-app': exerciseSeconds % 2 == 1 && state === 'exercise',
           'bg-neutral-700': exerciseSeconds % 2 == 0 && state === 'exercise',
@@ -100,8 +101,9 @@
         </div>
       </div>
       <div
-        class="cursor-pointer space-y-3 rounded p-3 transition-[background-color] duration-1000"
+        class="space-y-3 rounded p-3 transition-[background-color] duration-1000"
         :class="{
+          'cursor-pointer': enabled,
           'border-app border': state === 'pause',
           'bg-app': exerciseSeconds % 2 == 1 && state === 'pause',
           'bg-neutral-700': exerciseSeconds % 2 == 0 && state === 'pause',
@@ -118,7 +120,7 @@
     </div>
     <!-- Action -->
     <AppLoader v-if="savingInstance && !closed">Guardando ejercicio...</AppLoader>
-    <div class="flex justify-center space-x-3" v-if="!closed && !savingInstance">
+    <div class="flex justify-center space-x-3" v-if="!closed && !savingInstance && enabled">
       <AppButton
         type="primary"
         size="lg"
@@ -170,7 +172,7 @@ import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise.
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance.ts'
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import { deepCopy } from '@/utils/utils.ts'
+import { deepCopy, sleep } from '@/utils/utils.ts'
 import AppLoader from '@/components/AppLoader.vue'
 
 interface State {
@@ -195,6 +197,11 @@ export default defineComponent({
       type: Object as PropType<AppExerciseInstance | null>,
       required: false,
       default: null,
+    },
+    enabled: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
   },
   data(): State {
@@ -238,21 +245,28 @@ export default defineComponent({
     },
   },
   methods: {
+    editMetrics() {
+      if (!this.enabled) return
+      this.editingMetrics = true
+    },
     btnStart() {
-      if (!this.exerciseCopy) return
+      if (!this.exerciseCopy || !this.enabled) return
       this.editingMetrics = true
       this.lastStartedDate = new Date()
       this.state = 'exercise'
     },
     btnPause() {
+      if (!this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'pause'
     },
     btnContinue() {
+      if (!this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'exercise'
     },
     async btnEnd() {
+      if (!this.enabled) return
       try {
         this.editingMetrics = false
         this.state = 'end'
@@ -267,6 +281,7 @@ export default defineComponent({
       }
     },
     async saveMetrics() {
+      if (!this.enabled) return
       try {
         this.editingMetrics = false
         this.saveRecord()

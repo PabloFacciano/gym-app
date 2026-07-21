@@ -6,11 +6,21 @@
       <AppLoader />
     </AppCenter>
     <AppCenter v-else>
+      <AppWeekSelector v-model="selectedDate" @date-selected="loadExerciseInstances()" />
+      <AppCard>
+        {{
+          selectedDate.toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        }}
+      </AppCard>
       <AppExerciseBuilder
-        v-for="exercise in exercises"
-        :key="exercise.id"
-        :exercise="exercise"
-        :exercise-instance="getInstanceByExercercise(exercise)"
+        v-for="item in exerciseList"
+        :key="item.exerciseDefinition.id"
+        :exercise="item.exerciseDefinition"
+        :exercise-instance="item.exerciseInstance"
       />
     </AppCenter>
   </div>
@@ -20,9 +30,11 @@
 import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance'
 import AppLoader from '@/components/AppLoader.vue'
+import AppCard from '@/custom/AppCard.vue'
 import AppCenter from '@/custom/AppCenter.vue'
 import AppExerciseBuilder from '@/custom/AppExerciseBuilder.vue'
 import AppNavbar from '@/custom/AppNavbar.vue'
+import AppWeekSelector from '@/custom/AppWeekSelector.vue'
 import { defineComponent } from 'vue'
 
 interface State {
@@ -50,14 +62,23 @@ export default defineComponent({
     AppCenter,
     AppExerciseBuilder,
     AppLoader,
+    AppWeekSelector,
+    AppCard,
   },
-  watch: {},
   computed: {
     exerciseManager() {
       return ExerciseManager.getInstance()
     },
     exerciseInstanceManager() {
       return ExerciseInstanceManager.getInstance()
+    },
+    exerciseList() {
+      return this.exercises.map((def) => {
+        return {
+          exerciseDefinition: def,
+          exerciseInstance: this.getInstanceByExercercise(def),
+        }
+      })
     },
   },
   methods: {
@@ -81,6 +102,7 @@ export default defineComponent({
       this.loadingExercises = false
     },
     async loadExerciseInstances() {
+      if (this.loadingExerciseInstances) return
       this.loadingExerciseInstances = true
       try {
         this.exerciseInstances = await this.exerciseInstanceManager.getByDate(this.selectedDate)
