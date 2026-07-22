@@ -20,7 +20,7 @@
       <div class="flex items-center space-x-3">
         <div
           v-if="instanceSynced"
-          class="rounded-full p-3 "
+          class="rounded-full p-3 w-12 aspect-square flex place-items-center"
           :class="{ 'cursor-pointer hover:bg-neutral-500': !closed }"
           title="Guardado con éxito!"
         >
@@ -32,7 +32,7 @@
         </div>
         <div
           @click.stop="toggleCardVisibility"
-          class="cursor-pointer rounded-full p-3 hover:bg-neutral-500"
+          class="cursor-pointer rounded-full p-3 hover:bg-neutral-500 w-12 aspect-square flex place-items-center"
           :class="{ 'bg-neutral-600': !closed }"
         >
           <img
