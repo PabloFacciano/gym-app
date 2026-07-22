@@ -46,3 +46,34 @@ export function orderArrByDateField(arr:any[], dateFieldName:string) {
     return a[dateFieldName] - b[dateFieldName]
   })
 }
+
+export function toggleFullScreen(elementId:any) {
+  const elem = (elementId ? document.getElementById(elementId) : null) ?? document.documentElement;
+  
+  // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+  if ((document.fullscreenElement !== undefined && document.fullscreenElement === null) || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null) || (document.mozFullScreen !== undefined && !document.mozFullScreen) || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
+    if (elem.requestFullScreen) {
+      elem.requestFullScreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullScreen) {
+      elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    } else {
+      alert("Press F11 to go Fullscreen mode.")
+    }
+  } else {
+    if (document.cancelFullScreen) {
+      document.cancelFullScreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitCancelFullScreen) {
+      document.webkitCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else {
+      alert("Press ESC to exit Fullscreen mode.")
+    }
+  }
+}

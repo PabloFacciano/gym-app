@@ -1,6 +1,7 @@
 <template>
   <AppCard
     v-if="exercise && exerciseCopy"
+    :id="exerciseCopy.id"
     class="select-none"
     :class="{ 'cursor-pointer opacity-50': closed }"
     @click="openByClickingHeader"
@@ -184,7 +185,7 @@ import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise.
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance.ts'
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import { deepCopy, sleep } from '@/utils/utils.ts'
+import { deepCopy, sleep, toggleFullScreen } from '@/utils/utils.ts'
 import AppLoader from '@/components/AppLoader.vue'
 
 interface State {
@@ -269,9 +270,10 @@ export default defineComponent({
       this.editingMetrics = true
       this.lastStartedDate = new Date()
       this.state = 'exercise'
+      toggleFullScreen(this.exerciseCopy.id)
     },
     btnPause() {
-      if (!this.enabled) return
+      if (!this.exerciseCopy || !this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'pause'
       try {
@@ -282,7 +284,7 @@ export default defineComponent({
       }
     },
     btnContinue() {
-      if (!this.enabled) return
+      if (!this.exerciseCopy || !this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'exercise'
       try {
@@ -293,7 +295,8 @@ export default defineComponent({
       }
     },
     async btnEnd() {
-      if (!this.enabled) return
+      if (!this.exerciseCopy || !this.enabled) return
+      toggleFullScreen(this.exerciseCopy.id)
       try {
         this.editingMetrics = false
         this.state = 'end'
@@ -302,6 +305,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
         // rollback to pause state
+        toggleFullScreen(this.exerciseCopy.id)
         this.closed = false
         this.state = 'pause'
         alert('Save exerciseInstance failed')
