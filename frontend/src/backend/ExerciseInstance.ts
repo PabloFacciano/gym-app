@@ -117,7 +117,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     return this.cantSaveReasons(row).length == 0
   }
 
-  
+
   async save(row: AppExerciseInstance): Promise<void> {
     if (!this.canSave(row)) {
       throw new Error(`Validation failed: Cannot save exercise instance "${row.id}".`)
@@ -125,7 +125,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
 
     // fix metrics values
     for (let i = 0; i < 9; i++) {
-      const metricValueStr = row['metric0' + i]
+      const metricValueStr = row['metric0' + (i+1)]
       if (!isNumeric(metricValueStr)) {
         row['metric0' + (i+1)] = null // dont save non-valid values like ''
       }
