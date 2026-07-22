@@ -22,24 +22,57 @@
         <div
           v-if="instanceSynced"
           class="flex aspect-square w-12 place-items-center rounded-full p-3"
-          :class="{ 'cursor-pointer hover:bg-neutral-500': !closed }"
           title="Guardado con éxito!"
         >
           <img
             class="h-6 w-6 opacity-50"
-            src="https://img.icons8.com/ffffff/ios-filled/24/cloud-checked.png"
+            src="https://img.icons8.com/ffffff/ios-filled/50/cloud-checked.png"
             alt="exercise synced"
+          />
+        </div>
+        <div
+          v-if="savingInstance"
+          class="flex aspect-square w-12 place-items-center rounded-full p-3"
+          title="Guardando..."
+        >
+          <div
+            class="h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-t-transparent"
+          ></div>
+        </div>
+        <div
+          v-if="!isFullscreen && state != 'end'"
+          class="flex aspect-square w-12 cursor-pointer place-items-center rounded-full p-3 hover:bg-neutral-500"
+          title="Ampliar a Pantalla Completa"
+          @click="goFullScreen"
+        >
+          <img
+            class="h-6 w-6"
+            src="https://img.icons8.com/ffffff/ios/50/full-screen.png"
+            alt="go fullscreen"
+          />
+        </div>
+        <div
+          v-if="isFullscreen"
+          class="flex aspect-square w-12 cursor-pointer place-items-center rounded-full p-3 hover:bg-neutral-500"
+          title="Salir de Pantalla Completa"
+          @click="exitFullScreen"
+        >
+          <img
+            class="h-6 w-6"
+            src="https://img.icons8.com/ffffff/ios/50/normal-screen.png"
+            alt="exit fullscreen"
           />
         </div>
         <div
           @click.stop="toggleCardVisibility"
           class="flex aspect-square w-12 cursor-pointer place-items-center rounded-full p-3 hover:bg-neutral-500"
           :class="{ 'bg-neutral-600': !closed }"
+          v-if="!isFullscreen"
         >
           <img
             v-if="!closed"
             class="pointer-events-none h-6 w-6"
-            src="https://img.icons8.com/ffffff/material-sharp/24/chevron-up.png"
+            src="https://img.icons8.com/ffffff/material-sharp/50/chevron-up.png"
             alt="Contraer"
           />
           <img
@@ -52,45 +85,46 @@
       </div>
     </div>
     <!-- Metrics -->
-    <div
-      v-if="hasMetrics && !closed"
-      class="overflow-x-auto rounded-lg border border-neutral-500"
-      :class="{ 'cursor-pointer hover:bg-neutral-600': !editingMetrics && enabled }"
-      @click="editMetrics"
-    >
-      <div class="min-w-full divide-y divide-neutral-500">
-        <div
-          class="grid grid-cols-3 gap-3 px-4"
-          :class="{ 'py-3': !editingMetrics }"
-          v-for="(metric, index) in exercise.metrics"
-          :key="index"
-        >
+    <div class="space-y-4" v-if="hasMetrics && !closed">
+      <div
+        class="overflow-x-auto rounded-lg border border-neutral-500"
+        :class="{ 'cursor-pointer hover:bg-neutral-600': !editingMetrics && enabled }"
+        @click="editMetrics"
+      >
+        <div class="min-w-full divide-y divide-neutral-500">
           <div
-            class="flex w-auto items-center truncate text-sm font-medium whitespace-nowrap"
-            v-text="metric.name"
-          ></div>
-          <div class="flex items-center text-sm font-medium whitespace-nowrap">
-            <div v-if="!editingMetrics" v-text="exerciseCopy['metric0' + (index + 1)]"></div>
-            <AppTextInput
-              v-if="editingMetrics"
-              v-model="exerciseCopy['metric0' + (index + 1)]"
-              type="number"
-              placeholder="Valor"
-              :maxlength="50"
-              :required="false"
-              :minimun="0"
-              :maximun="1000000000"
-            />
+            class="grid grid-cols-3 gap-3 px-4"
+            :class="{ 'py-3': !editingMetrics }"
+            v-for="(metric, index) in exercise.metrics"
+            :key="index"
+          >
+            <div
+              class="flex w-auto items-center truncate text-sm font-medium whitespace-nowrap"
+              v-text="metric.name"
+            ></div>
+            <div class="flex items-center text-sm font-medium whitespace-nowrap">
+              <div v-if="!editingMetrics" v-text="exerciseCopy['metric0' + (index + 1)]"></div>
+              <AppTextInput
+                v-if="editingMetrics"
+                v-model="exerciseCopy['metric0' + (index + 1)]"
+                type="number"
+                placeholder="Valor"
+                :maxlength="50"
+                :required="false"
+                :minimun="0"
+                :maximun="1000000000"
+              />
+            </div>
+            <div
+              class="flex items-center text-sm font-medium whitespace-nowrap"
+              v-text="metric.measure"
+            ></div>
           </div>
-          <div
-            class="flex items-center text-sm font-medium whitespace-nowrap"
-            v-text="metric.measure"
-          ></div>
         </div>
       </div>
-    </div>
-    <div class="flex justify-end" v-if="editingMetrics && !closed">
-      <AppButton type="primary" size="sm" @click="saveMetrics">Guardar</AppButton>
+      <div class="flex justify-end" v-if="state == 'end' && editingMetrics">
+        <AppButton type="primary" size="sm" @click="saveMetrics">Guardar</AppButton>
+      </div>
     </div>
     <!-- Elapsed time  -->
     <div class="grid grid-cols-2 text-center" v-if="!closed">
@@ -112,7 +146,10 @@
             )
           }}
         </div>
-        <div class="text-sm" v-if="state == 'exercise'">
+        <div
+          class="text-sm"
+          v-if="state == 'exercise' && (exerciseCopy?.exerciseDuration ?? 0) > 0"
+        >
           {{ formatTime(exerciseCopy?.exerciseDuration ?? 0) }}
         </div>
       </div>
@@ -130,18 +167,17 @@
         <div class="text-2xl font-bold">
           {{ formatTime(state == 'pause' ? exerciseSeconds : (exerciseCopy?.restDuration ?? 0)) }}
         </div>
-        <div class="text-sm" v-if="state == 'pause'">
+        <div class="text-sm" v-if="state == 'pause' && (exerciseCopy?.restDuration ?? 0) > 0">
           {{ formatTime(exerciseCopy?.restDuration ?? 0) }}
         </div>
       </div>
     </div>
     <!-- Action -->
-    <AppLoader v-if="savingInstance && !closed">Guardando ejercicio...</AppLoader>
-    <div class="flex justify-center space-x-3" v-if="!closed && !savingInstance && enabled">
+    <div class="flex justify-center space-x-3" v-if="!closed && enabled">
       <AppButton
         type="primary"
         size="lg"
-        :disabled="false"
+        :disabled="savingInstance"
         @click="btnStart"
         icon="https://img.icons8.com/ffffff/ios-filled/50/play--v1.png"
         v-if="state == 'end'"
@@ -152,7 +188,7 @@
         type="secondary"
         size="lg"
         icon="https://img.icons8.com/ffffff/ios-filled/50/stop--v1.png"
-        :disabled="false"
+        :disabled="savingInstance"
         @click="btnEnd"
         v-if="state == 'pause'"
       >
@@ -161,7 +197,7 @@
       <AppButton
         type="secondary"
         size="lg"
-        :disabled="false"
+        :disabled="savingInstance"
         icon="https://img.icons8.com/ffffff/ios-filled/50/pause--v1.png"
         @click="btnPause"
         v-if="state == 'exercise'"
@@ -172,7 +208,7 @@
         type="secondary"
         size="lg"
         icon="https://img.icons8.com/ffffff/ios-filled/50/play--v1.png"
-        :disabled="false"
+        :disabled="savingInstance"
         @click="btnContinue"
         v-if="state == 'pause'"
       >
@@ -201,6 +237,7 @@ interface State {
   nowTimer: number | null
   lastStartedDate: Date
   savingInstance: boolean
+  isFullscreen: boolean
 }
 
 export default defineComponent({
@@ -231,6 +268,7 @@ export default defineComponent({
       nowTimer: null,
       lastStartedDate: new Date(),
       savingInstance: false,
+      isFullscreen: false,
     }
   },
   components: {
@@ -249,7 +287,12 @@ export default defineComponent({
   },
   computed: {
     instanceSynced() {
-      return !this.savingInstance && !this.editingMetrics && this.exerciseCopy?.userId != null
+      return (
+        !this.savingInstance &&
+        !this.editingMetrics &&
+        this.exerciseCopy?.userId != null &&
+        !this.closed
+      )
     },
     exerciseManager() {
       return ExerciseManager.getInstance()
@@ -265,53 +308,66 @@ export default defineComponent({
     },
   },
   methods: {
+    goFullScreen() {
+      if (!this.exerciseCopy || this.isFullscreen) return
+      goFullScreen(this.exerciseCopy.id)
+    },
+    exitFullScreen() {
+      if (!this.exerciseCopy || !this.isFullscreen) return
+      cancelFullScreen()
+    },
+    handleFullscreenChange() {
+      this.isFullscreen = !!document.fullscreenElement
+    },
     editMetrics() {
       if (!this.enabled) return
       this.editingMetrics = true
     },
     btnStart() {
-      if (!this.exerciseCopy || !this.enabled) return
+      if (!this.exerciseCopy || !this.enabled || this.savingInstance) return
       this.editingMetrics = true
       this.lastStartedDate = new Date()
       this.state = 'exercise'
-      goFullScreen(this.exerciseCopy.id)
+      this.goFullScreen()
     },
-    btnPause() {
-      if (!this.exerciseCopy || !this.enabled) return
+    async btnPause() {
+      if (!this.exerciseCopy || !this.enabled || this.savingInstance) return
       this.updateExerciseCopyTime()
       this.state = 'pause'
       try {
-        this.saveRecord()
+        await this.saveRecord()
       } catch (error) {
         console.error(error)
         alert('Save exerciseInstance failed')
       }
     },
-    btnContinue() {
-      if (!this.exerciseCopy || !this.enabled) return
+    async btnContinue() {
+      if (!this.exerciseCopy || !this.enabled || this.savingInstance) return
       this.updateExerciseCopyTime()
       this.state = 'exercise'
       try {
-        this.saveRecord()
+        await this.saveRecord()
       } catch (error) {
         console.error(error)
         alert('Save exerciseInstance failed')
       }
     },
     async btnEnd() {
-      if (!this.exerciseCopy || !this.enabled) return
-      cancelFullScreen()
+      if (!this.exerciseCopy || !this.enabled || this.savingInstance) return
+      if (!(this.editingMetrics || this.state != 'end')) return
+      this.updateExerciseCopyTime()
+      this.exitFullScreen()
       try {
         this.editingMetrics = false
         this.state = 'end'
         this.closed = true
-        this.saveRecord()
+        await this.saveRecord()
       } catch (error) {
         console.error(error)
         // rollback to pause state
         this.closed = false
         this.state = 'pause'
-        goFullScreen(this.exerciseCopy.id)
+        this.goFullScreen()
         alert('Save exerciseInstance failed')
       }
     },
@@ -319,7 +375,7 @@ export default defineComponent({
       if (!this.enabled) return
       try {
         this.editingMetrics = false
-        this.saveRecord()
+        await this.saveRecord()
       } catch (error) {
         this.editingMetrics = true
         console.error(error)
@@ -367,11 +423,18 @@ export default defineComponent({
     },
   },
   mounted() {
+    document.addEventListener('fullscreenchange', this.handleFullscreenChange)
+    document.addEventListener('webkitfullscreenchange', this.handleFullscreenChange)
     this.nowTimer = window.setInterval(() => {
       this.now = new Date()
     }, 50)
   },
-  unmounted() {
+  async beforeUnmount() {
+    // save changes before leaving
+    await this.btnEnd()
+
+    document.removeEventListener('fullscreenchange', this.handleFullscreenChange)
+    document.removeEventListener('webkitfullscreenchange', this.handleFullscreenChange)
     if (this.nowTimer) window.clearInterval(this.nowTimer)
   },
 })
