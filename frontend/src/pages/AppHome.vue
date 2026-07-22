@@ -100,14 +100,11 @@ export default defineComponent({
       })
     },
     exerciseList() {
-      const EMPTY_DEFINITION = this.exerciseManager.newRow()
-      EMPTY_DEFINITION.name = '<Eliminado>'
-
-      const exerciseInstaces = this.exerciseInstances.map((instance) => {
+      const exerciseInstaces = this.exerciseInstances.flatMap((instance) => {
+        const definition = this.exercises.find((def) => def.id === instance.exerciseDefinitionId)
+        if (!definition) return []
         return {
-          exerciseDefinition:
-            this.exercises.find((def) => def.id === instance.exerciseDefinitionId) ??
-            EMPTY_DEFINITION,
+          exerciseDefinition: definition,
           exerciseInstance: instance,
         }
       })
