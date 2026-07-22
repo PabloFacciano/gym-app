@@ -15,7 +15,7 @@
           alt="ejercicio"
         />
       </div>
-      <div class="grow text-xl font-medium" v-text="exercise.name"></div>
+      <div class="grow text-xl font-medium truncate" v-text="exercise.name"></div>
       <!-- subicons -->
       <div class="flex items-center space-x-3">
         <div
