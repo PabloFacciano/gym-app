@@ -117,6 +117,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     return this.cantSaveReasons(row).length == 0
   }
 
+  
   async save(row: AppExerciseInstance): Promise<void> {
     if (!this.canSave(row)) {
       throw new Error(`Validation failed: Cannot save exercise instance "${row.id}".`)
