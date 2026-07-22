@@ -274,11 +274,23 @@ export default defineComponent({
       if (!this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'pause'
+      try {
+        this.saveRecord()
+      } catch (error) {
+        console.error(error)
+        alert('Save exerciseInstance failed')
+      }
     },
     btnContinue() {
       if (!this.enabled) return
       this.updateExerciseCopyTime()
       this.state = 'exercise'
+      try {
+        this.saveRecord()
+      } catch (error) {
+        console.error(error)
+        alert('Save exerciseInstance failed')
+      }
     },
     async btnEnd() {
       if (!this.enabled) return
