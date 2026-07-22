@@ -7,14 +7,16 @@
     </AppCenter>
     <AppCenter v-else>
       <AppWeekSelector v-model="selectedDate" @date-selected="loadExerciseInstances()" />
-      <AppCard>
-        {{
-          selectedDate.toLocaleDateString('es-AR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          })
-        }}
+      <AppCard class="flex justify-between text-lg font-medium">
+        <span>
+          {{
+            selectedDate.toLocaleDateString('es-AR', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            })
+          }}
+        </span>
       </AppCard>
       <AppExerciseBuilder
         v-for="item in exerciseList"
@@ -22,6 +24,15 @@
         :exercise="item.exerciseDefinition"
         :exercise-instance="item.exerciseInstance"
       />
+      <AppCard v-if="exercises.length > 0">
+        <div class="text-lg font-medium">Agregar a la rutina</div>
+        <AppDropdown v-model="selectedExerciseId" :list="availableExercises" :required="false" />
+        <div class="flex justify-center space-x-3" v-if="selectedExerciseId">
+          <AppButton type="primary" size="lg" :disabled="false" @click="addSelectedExercise">
+            Agregar
+          </AppButton>
+        </div>
+      </AppCard>
     </AppCenter>
   </div>
 </template>
@@ -29,6 +40,9 @@
 <script lang="ts">
 import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise'
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance'
+import AppButton from '@/components/AppButton.vue'
+import type { SelectOption } from '@/components/AppDropdown.vue'
+import AppDropdown from '@/components/AppDropdown.vue'
 import AppLoader from '@/components/AppLoader.vue'
 import AppCard from '@/custom/AppCard.vue'
 import AppCenter from '@/custom/AppCenter.vue'
@@ -43,6 +57,7 @@ interface State {
   exercises: AppExerciseDefinition[]
   exerciseInstances: AppExerciseInstance[]
   selectedDate: Date
+  selectedExerciseId: string | null
 }
 
 export default defineComponent({
@@ -55,6 +70,7 @@ export default defineComponent({
       exercises: [],
       exerciseInstances: [],
       selectedDate: new Date(),
+      selectedExerciseId: null,
     }
   },
   components: {
@@ -64,6 +80,8 @@ export default defineComponent({
     AppLoader,
     AppWeekSelector,
     AppCard,
+    AppDropdown,
+    AppButton,
   },
   computed: {
     exerciseManager() {
@@ -72,22 +90,44 @@ export default defineComponent({
     exerciseInstanceManager() {
       return ExerciseInstanceManager.getInstance()
     },
-    exerciseList() {
+    availableExercises(): SelectOption[] {
       return this.exercises.map((def) => {
-
-        let instance = this.exerciseInstances.find((_instance) => _instance.exerciseDefinitionId === def.id) ??
-            this.exerciseInstanceManager.getNewByExerciseDefinition(def)
-        instance.createdDate = new Date(this.selectedDate); // so it belongs to selected date
-        instance.modifiedDate = new Date(this.selectedDate); // so it belongs to selected date
-
         return {
-          exerciseDefinition: def,
-          exerciseInstance: instance
+          label: def.name ?? '',
+          description: '',
+          value: def.id,
         }
       })
     },
+    exerciseList() {
+      const EMPTY_DEFINITION = this.exerciseManager.newRow()
+      EMPTY_DEFINITION.name = '<Eliminado>'
+
+      const exerciseInstaces = this.exerciseInstances.map((instance) => {
+        return {
+          exerciseDefinition:
+            this.exercises.find((def) => def.id === instance.exerciseDefinitionId) ??
+            EMPTY_DEFINITION,
+          exerciseInstance: instance,
+        }
+      })
+      return exerciseInstaces
+    },
   },
   methods: {
+    addSelectedExercise() {
+      const selected = this.selectedExerciseId
+      if (!selected) return
+
+      const EMPTY_DEFINITION = this.exerciseManager.newRow()
+      this.exerciseInstances.push(
+        this.exerciseInstanceManager.getNewByExerciseDefinition(
+          this.exercises.find((def) => def.id === selected) ?? EMPTY_DEFINITION,
+        ),
+      )
+
+      this.selectedExerciseId = null
+    },
     async loadExercises() {
       this.loadingExercises = true
       try {
