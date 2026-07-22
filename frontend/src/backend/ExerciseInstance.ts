@@ -126,7 +126,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
     for (let i = 0; i < 9; i++) {
       const metricValueStr = row['metric0' + i]
       if (!isNumeric(metricValueStr)) {
-        row['metric0' + i] = null // dont save non-valid values like ''
+        row['metric0' + (i+1)] = null // dont save non-valid values like ''
       }
     }
 
@@ -289,7 +289,7 @@ export class ExerciseInstanceManager implements IDataManager<AppExerciseInstance
           break
         }
         const metric = exercise.metrics[i]
-        row['metric0' + i] = metric?.defaultValue
+        row['metric0' + (i+1)] = metric?.defaultValue
       }
     }
 
