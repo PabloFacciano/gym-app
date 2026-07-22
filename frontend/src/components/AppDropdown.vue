@@ -20,7 +20,7 @@
           'font-semibold placeholder-neutral-200': selectedOption && isInternallyValid,
           'placeholder-neutral-600': !selectedOption || !isInternallyValid,
         }"
-        :placeholder="selectedOption ? selectedOption.label : 'Select an option'"
+        :placeholder="selectedOption ? selectedOption.label : 'Selecciona una opción'"
         :readonly="!isSearchable || disabled"
         :disabled="disabled"
         v-model="internalSearch"
@@ -47,7 +47,7 @@
     <!-- Label / Required Indicator -->
     <div class="mt-2 flex items-center justify-between px-1">
       <span v-if="required && !disabled && !isInternallyValid" class="text-sm text-red-400"
-        >&#9650; This field is required.</span
+        >&#9650; Este campo es requerido.</span
       >
     </div>
 
@@ -88,7 +88,7 @@
           </div>
         </div>
         <div v-else class="px-4 py-8 text-center text-neutral-600 italic">
-          No results found for "{{ internalSearch }}"
+          No hay resultados para "{{ internalSearch }}"
         </div>
       </div>
     </transition>
