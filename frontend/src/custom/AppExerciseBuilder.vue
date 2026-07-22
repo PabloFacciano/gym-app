@@ -2,7 +2,7 @@
   <AppCard
     v-if="exercise && exerciseCopy"
     :id="exerciseCopy.id"
-    class="select-none"
+    class="flex flex-col justify-between select-none"
     :class="{ 'cursor-pointer opacity-50': closed }"
     @click="openByClickingHeader"
   >
@@ -16,12 +16,12 @@
           alt="ejercicio"
         />
       </div>
-      <div class="grow text-xl font-medium truncate" v-text="exercise.name"></div>
+      <div class="grow truncate text-xl font-medium" v-text="exercise.name"></div>
       <!-- subicons -->
       <div class="flex items-center space-x-3">
         <div
           v-if="instanceSynced"
-          class="rounded-full p-3 w-12 aspect-square flex place-items-center"
+          class="flex aspect-square w-12 place-items-center rounded-full p-3"
           :class="{ 'cursor-pointer hover:bg-neutral-500': !closed }"
           title="Guardado con éxito!"
         >
@@ -33,7 +33,7 @@
         </div>
         <div
           @click.stop="toggleCardVisibility"
-          class="cursor-pointer rounded-full p-3 hover:bg-neutral-500 w-12 aspect-square flex place-items-center"
+          class="flex aspect-square w-12 cursor-pointer place-items-center rounded-full p-3 hover:bg-neutral-500"
           :class="{ 'bg-neutral-600': !closed }"
         >
           <img
@@ -105,12 +105,15 @@
         @click="btnContinue"
       >
         <div>Ejercicio</div>
-        <div class="text-lg font-medium">
+        <div class="text-2xl font-bold">
           {{
             formatTime(
-              (exerciseCopy?.exerciseDuration ?? 0) + (state == 'exercise' ? exerciseSeconds : 0),
+              state == 'exercise' ? exerciseSeconds : (exerciseCopy?.exerciseDuration ?? 0),
             )
           }}
+        </div>
+        <div class="text-sm" v-if="state == 'exercise'">
+          {{ formatTime(exerciseCopy?.exerciseDuration ?? 0) }}
         </div>
       </div>
       <div
@@ -124,10 +127,11 @@
         @click="btnPause"
       >
         <div>Descanso</div>
-        <div class="text-lg font-medium">
-          {{
-            formatTime((exerciseCopy?.restDuration ?? 0) + (state == 'pause' ? exerciseSeconds : 0))
-          }}
+        <div class="text-2xl font-bold">
+          {{ formatTime(state == 'pause' ? exerciseSeconds : (exerciseCopy?.restDuration ?? 0)) }}
+        </div>
+        <div class="text-sm" v-if="state == 'pause'">
+          {{ formatTime(exerciseCopy?.restDuration ?? 0) }}
         </div>
       </div>
     </div>
@@ -185,7 +189,7 @@ import { ExerciseManager, type AppExerciseDefinition } from '@/backend/Exercise.
 import { ExerciseInstanceManager, type AppExerciseInstance } from '@/backend/ExerciseInstance.ts'
 import AppTextInput from '@/components/AppTextInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import { deepCopy, sleep, toggleFullScreen } from '@/utils/utils.ts'
+import { cancelFullScreen, deepCopy, goFullScreen } from '@/utils/utils.ts'
 import AppLoader from '@/components/AppLoader.vue'
 
 interface State {
@@ -270,7 +274,7 @@ export default defineComponent({
       this.editingMetrics = true
       this.lastStartedDate = new Date()
       this.state = 'exercise'
-      toggleFullScreen(this.exerciseCopy.id)
+      goFullScreen(this.exerciseCopy.id)
     },
     btnPause() {
       if (!this.exerciseCopy || !this.enabled) return
@@ -296,7 +300,7 @@ export default defineComponent({
     },
     async btnEnd() {
       if (!this.exerciseCopy || !this.enabled) return
-      toggleFullScreen(this.exerciseCopy.id)
+      cancelFullScreen()
       try {
         this.editingMetrics = false
         this.state = 'end'
@@ -305,9 +309,9 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
         // rollback to pause state
-        toggleFullScreen(this.exerciseCopy.id)
         this.closed = false
         this.state = 'pause'
+        goFullScreen(this.exerciseCopy.id)
         alert('Save exerciseInstance failed')
       }
     },
